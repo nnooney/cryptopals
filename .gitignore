@@ -1,0 +1,6 @@
+# Don't save any Meson build artifacts
+build/
+
+# Don't save any subprojects except for their wrap file
+subprojects/*
+!subprojects/*.wrap
