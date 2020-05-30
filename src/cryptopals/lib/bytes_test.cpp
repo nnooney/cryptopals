@@ -43,6 +43,14 @@ TEST(BytesTest, FromBase64OddLengthSuccess) {
   EXPECT_EQ(from_base64("ABC"), expected_bytes);
 }
 
+TEST(BytesTest, FromBase64PaddedSuccess) {
+  std::vector<uint8_t> expected_bytes = {0x00, 0x10};
+  EXPECT_EQ(from_base64("ABA="), expected_bytes);
+
+  std::vector<uint8_t> expected_bytes2 = {0x00};
+  EXPECT_EQ(from_base64("AA=="), expected_bytes2);
+}
+
 TEST(BytesTest, ToBase64Success) {
   std::vector<uint8_t> input_bytes = {
       0x00, 0x10, 0x83, 0x10, 0x51, 0x87, 0x20, 0x92, 0x8b, 0x30, 0xd3, 0x8f,
@@ -51,6 +59,14 @@ TEST(BytesTest, ToBase64Success) {
       0xc3, 0x1c, 0xb3, 0xd3, 0x5d, 0xb7, 0xe3, 0x9e, 0xbb, 0xf3, 0xdf, 0xbf};
   EXPECT_EQ(to_base64(input_bytes),
             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+}
+
+TEST(BytesTest, ToBase64OddLengthSuccess) {
+  std::vector<uint8_t> input_bytes = {0x00};
+  EXPECT_EQ(to_base64(input_bytes), "AA==");
+
+  std::vector<uint8_t> input_bytes2 = {0x00, 0x10};
+  EXPECT_EQ(to_base64(input_bytes2), "ABA=");
 }
 
 TEST(BytesTest, FromBase64AndBackSuccess) {
