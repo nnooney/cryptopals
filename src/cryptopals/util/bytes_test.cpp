@@ -1,8 +1,8 @@
-#include "cryptopals/lib/bytes.h"
+#include "cryptopals/util/bytes.h"
 
 #include "gtest/gtest.h"
 
-namespace cryptopals::lib::bytes {
+namespace cryptopals::util::bytes {
 
 TEST(BytesTest, FromHexSuccess) {
   std::vector<uint8_t> expected_bytes = {0x01, 0x23, 0x45, 0x67,
@@ -75,4 +75,4 @@ TEST(BytesTest, FromBase64AndBackSuccess) {
   EXPECT_EQ(to_base64(from_base64(encoded)), encoded);
 }
 
-}  // namespace cryptopals::lib::bytes
+}  // namespace cryptopals::util::bytes

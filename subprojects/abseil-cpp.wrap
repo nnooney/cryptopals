@@ -5,6 +5,7 @@ source_url = https://github.com/abseil/abseil-cpp/archive/20200225.2.zip
 source_filename = abseil-cpp-20200225.2.zip
 source_hash = f342aac71a62861ac784cadb8127d5a42c6c61ab1cd07f00aef05f2cc4988c42
 
-patch_url = https://github.com/nnooney-meson-wraps/abseil-cpp/archive/20200225.2.zip
-patch_filename = abseil-cpp-20200225.2-wrap.zip
-patch_hash = 58aa1628db80a54c21d4ed4f24d6733ad252e34fd497d98617cc86823be30018
+
+patch_url = https://wrapdb.mesonbuild.com/v1/projects/abseil-cpp/20200225.2/1/get_zip
+patch_filename = abseil-cpp-20200225.2-1-wrap.zip
+patch_hash = ead3b57da7489b5e52bb4722056ea87e544479049c870a5dc72db2c498e76f0f

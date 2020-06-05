@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package cryptopals;
+
+enum ConvertFormat {
+  UNSPECIFIED = 0;
+  HEX = 1;
+  BASE64 = 2;
+}

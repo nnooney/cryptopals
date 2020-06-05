@@ -1,11 +1,11 @@
-#include "cryptopals/lib/bytes.h"
+#include "cryptopals/util/bytes.h"
 
 #include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
 
-namespace cryptopals::lib::bytes {
+namespace cryptopals::util::bytes {
 
 constexpr std::string_view hex_chars = "0123456789abcdef";
 constexpr std::string_view base64_chars =
@@ -146,4 +146,4 @@ std::string to_base64(const std::vector<uint8_t>& bytes) {
   return base64_str;
 }
 
-}  // namespace cryptopals::lib::bytes
+}  // namespace cryptopals::util::bytes

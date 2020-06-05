@@ -15,6 +15,15 @@ absl_synchronization_dep = absl_proj.get_variable('absl_synchronization_dep')
 absl_time_dep = absl_proj.get_variable('absl_time_dep')
 absl_types_dep = absl_proj.get_variable('absl_types_dep')
 
+# Include Loguru dependency.
+emilk_loguru_proj = subproject('emilk-loguru')
+emilk_loguru_dep = emilk_loguru_proj.get_variable('emilk_loguru_dep')
+
+# Include Protobuf dependency.
+protobuf_proj = subproject('protobuf')
+protobuf_dep = protobuf_proj.get_variable('protobuf_dep')
+protoc = protobuf_proj.get_variable('protoc')
+
 # Include GoogleTest for all test code.
 gtest_proj = subproject('gtest')
 gtest_dep = gtest_proj.get_variable('gtest_dep')

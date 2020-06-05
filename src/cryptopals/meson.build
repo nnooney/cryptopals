@@ -1,2 +1,3 @@
-subdir('lib')
+subdir('proto')
+subdir('util')
 subdir('challenges')

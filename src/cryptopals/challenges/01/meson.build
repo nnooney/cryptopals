@@ -3,5 +3,13 @@ executable(
   files(
     'convert_tool.cpp',
   ),
-  dependencies: [absl_flags_dep],
+  include_directories: root_include,
+  dependencies: [
+    absl_flags_dep,
+    cryptopals_enums_dep,
+    emilk_loguru_dep,
+  ],
+  link_with: [
+    string_utils,
+  ]
 )
