@@ -6,6 +6,7 @@
 #include "absl/flags/usage.h"
 #include "absl/status/status.h"
 #include "cryptopals/proto/cryptopals_enums.pb.h"
+#include "cryptopals/util/bytes.h"
 #include "cryptopals/util/string_utils.h"
 #include "loguru.hpp"
 
@@ -48,6 +49,35 @@ int main(int argc, char **argv) {
 
   LOG(INFO) << "Converting from " << ConvertFormat_Name(from_format) << " to "
             << ConvertFormat_Name(to_format);
+
+  for (int i = 1; i < positional_args.size(); ++i) {
+    std::vector<uint8_t> bytes;
+    switch (from_format) {
+      case cryptopals::ConvertFormat::BASE64:
+        bytes = cryptopals::util::bytes::from_base64(positional_args.at(i));
+        break;
+      case cryptopals::ConvertFormat::HEX:
+        bytes = cryptopals::util::bytes::from_hex(positional_args.at(i));
+        break;
+      default:
+        LOG(ERROR) << "Unsupported --from format: "
+                   << ConvertFormat_Name(from_format);
+        return 1;
+    }
+
+    switch (to_format) {
+      case cryptopals::ConvertFormat::BASE64:
+        std::cout << cryptopals::util::bytes::to_base64(bytes) << std::endl;
+        break;
+      case cryptopals::ConvertFormat::HEX:
+        std::cout << cryptopals::util::bytes::to_hex(bytes) << std::endl;
+        break;
+      default:
+        LOG(ERROR) << "Unsupported --to format: "
+                   << ConvertFormat_Name(to_format);
+        return 1;
+    }
+  }
 
   return 0;
 }

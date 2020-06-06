@@ -1,3 +1,6 @@
+#ifndef CRYPTOPALS_UTIL_BYTES_H_
+#define CRYPTOPALS_UTIL_BYTES_H_
+
 #include <cstdint>
 #include <string_view>
 #include <vector>
@@ -21,3 +24,5 @@ std::vector<uint8_t> from_base64(const std::string_view base64_str);
 std::string to_base64(const std::vector<uint8_t>& bytes);
 
 }  // namespace cryptopals::util::bytes
+
+#endif  // CRYPTOPALS_UTIL_BYTES_H_

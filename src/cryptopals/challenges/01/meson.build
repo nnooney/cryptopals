@@ -10,6 +10,7 @@ executable(
     emilk_loguru_dep,
   ],
   link_with: [
+    bytes,
     string_utils,
-  ]
+  ],
 )
