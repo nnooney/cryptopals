@@ -5,7 +5,7 @@
 
 namespace cryptopals::util {
 
-void strToUpper(std::string* str) {
+void StrToUpper(std::string* str) {
   std::transform(str->begin(), str->end(), str->begin(),
                  [](unsigned char c) { return std::toupper(c); });
 }

@@ -5,7 +5,7 @@
 
 namespace cryptopals::util {
 
-void strToUpper(std::string* str);
+void StrToUpper(std::string* str);
 
 }  // namespace cryptopals::util
 

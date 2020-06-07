@@ -5,24 +5,29 @@
 #include <string_view>
 #include <vector>
 
-namespace cryptopals::util::bytes {
+namespace cryptopals::util {
 
-// Takes a hex-encoded input `hex_str` and returns a vector of bytes
-// representing its contents. The output is padded with 0s to the nearest byte.
-std::vector<uint8_t> from_hex(const std::string_view hex_str);
+class Bytes {
+ public:
+  // Constructs a Bytes object from a hex-encoded input `hex_str`. The Bytes
+  // object is padded with 0s to the nearest byte.
+  static Bytes CreateFromHex(const std::string_view hex_str);
 
-// Takes a vector of bytes `bytes` and returns a hex-encoded string representing
-// its contents.
-std::string to_hex(const std::vector<uint8_t>& bytes);
+  // Constructs a Bytes object from a base64-encoded input `base64_str`. The
+  // Bytes object is padded with 0s to the nearest byte.
+  static Bytes CreateFromBase64(const std::string_view base64_str);
 
-// Takes a base64-encoded input `base64_str` and returns a vector of bytes
-// representing its contents. The output is padded with 0s to the nearest byte.
-std::vector<uint8_t> from_base64(const std::string_view base64_str);
+  // Returns a hex-encoded string representing the bytes of this object.
+  std::string ToHex(void) const;
 
-// Takes a vector of bytes `bytes`  and returns a base64-encoded string
-// representing its contents.
-std::string to_base64(const std::vector<uint8_t>& bytes);
+  // Returns a base64-encoded string representing the bytes of this object.
+  std::string ToBase64(void) const;
 
-}  // namespace cryptopals::util::bytes
+ private:
+  // A vector to hold the raw data contained in this class.
+  std::vector<uint8_t> data_;
+};
+
+}  // namespace cryptopals::util
 
 #endif  // CRYPTOPALS_UTIL_BYTES_H_

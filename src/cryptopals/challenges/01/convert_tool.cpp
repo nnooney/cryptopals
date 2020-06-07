@@ -21,9 +21,9 @@ int main(int argc, char **argv) {
   std::vector<char *> positional_args = absl::ParseCommandLine(argc, argv);
 
   std::string from_format_flag = absl::GetFlag(FLAGS_from);
-  cryptopals::util::strToUpper(&from_format_flag);
+  cryptopals::util::StrToUpper(&from_format_flag);
   std::string to_format_flag = absl::GetFlag(FLAGS_to);
-  cryptopals::util::strToUpper(&to_format_flag);
+  cryptopals::util::StrToUpper(&to_format_flag);
 
   cryptopals::ConvertFormat from_format;
   if (from_format_flag.empty()) {
@@ -51,13 +51,13 @@ int main(int argc, char **argv) {
             << ConvertFormat_Name(to_format);
 
   for (int i = 1; i < positional_args.size(); ++i) {
-    std::vector<uint8_t> bytes;
+    cryptopals::util::Bytes bytes;
     switch (from_format) {
       case cryptopals::ConvertFormat::BASE64:
-        bytes = cryptopals::util::bytes::from_base64(positional_args.at(i));
+        bytes = cryptopals::util::Bytes::CreateFromBase64(positional_args.at(i));
         break;
       case cryptopals::ConvertFormat::HEX:
-        bytes = cryptopals::util::bytes::from_hex(positional_args.at(i));
+        bytes = cryptopals::util::Bytes::CreateFromHex(positional_args.at(i));
         break;
       default:
         LOG(ERROR) << "Unsupported --from format: "
@@ -67,10 +67,10 @@ int main(int argc, char **argv) {
 
     switch (to_format) {
       case cryptopals::ConvertFormat::BASE64:
-        std::cout << cryptopals::util::bytes::to_base64(bytes) << std::endl;
+        std::cout << bytes.ToBase64() << std::endl;
         break;
       case cryptopals::ConvertFormat::HEX:
-        std::cout << cryptopals::util::bytes::to_hex(bytes) << std::endl;
+        std::cout << bytes.ToHex() << std::endl;
         break;
       default:
         LOG(ERROR) << "Unsupported --to format: "

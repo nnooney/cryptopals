@@ -2,77 +2,31 @@
 
 #include "gtest/gtest.h"
 
-namespace cryptopals::util::bytes {
+namespace cryptopals::util {
 
-TEST(BytesTest, FromHexSuccess) {
-  std::vector<uint8_t> expected_bytes = {0x01, 0x23, 0x45, 0x67,
-                                         0x89, 0xab, 0xcd, 0xef};
-  EXPECT_EQ(from_hex("0123456789abcdef"), expected_bytes);
+TEST(BytesTest, HexConversionTest) {
+  std::string test_inout_1 = "0123456789abcdef";
+  EXPECT_EQ(Bytes::CreateFromHex(test_inout_1).ToHex(), test_inout_1);
+
+  std::string test_in_2 = "012";
+  std::string test_out_2 = "0120";
+  EXPECT_EQ(Bytes::CreateFromHex(test_in_2).ToHex(), test_out_2);
 }
 
-TEST(BytesTest, FromHexOddLengthSuccess) {
-  std::vector<uint8_t> expected_bytes = {0x01, 0x20};
-  EXPECT_EQ(from_hex("012"), expected_bytes);
-}
-
-TEST(BytesTest, ToHexSuccess) {
-  std::vector<uint8_t> input_bytes = {0x01, 0x23, 0x45, 0x67,
-                                      0x89, 0xab, 0xcd, 0xef};
-  EXPECT_EQ(to_hex(input_bytes), "0123456789abcdef");
-}
-
-TEST(BytesTest, FromHexAndBackSuccess) {
-  std::string encoded = "0123456789abcdef";
-  EXPECT_EQ(to_hex(from_hex(encoded)), encoded);
-}
-
-TEST(BytesTest, FromBase64Success) {
-  std::vector<uint8_t> expected_bytes = {
-      0x00, 0x10, 0x83, 0x10, 0x51, 0x87, 0x20, 0x92, 0x8b, 0x30, 0xd3, 0x8f,
-      0x41, 0x14, 0x93, 0x51, 0x55, 0x97, 0x61, 0x96, 0x9b, 0x71, 0xd7, 0x9f,
-      0x82, 0x18, 0xa3, 0x92, 0x59, 0xa7, 0xa2, 0x9a, 0xab, 0xb2, 0xdb, 0xaf,
-      0xc3, 0x1c, 0xb3, 0xd3, 0x5d, 0xb7, 0xe3, 0x9e, 0xbb, 0xf3, 0xdf, 0xbf};
-  EXPECT_EQ(
-      from_base64(
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"),
-      expected_bytes);
-}
-
-TEST(BytesTest, FromBase64OddLengthSuccess) {
-  std::vector<uint8_t> expected_bytes = {0x00, 0x10, 0x80};
-  EXPECT_EQ(from_base64("ABC"), expected_bytes);
-}
-
-TEST(BytesTest, FromBase64PaddedSuccess) {
-  std::vector<uint8_t> expected_bytes = {0x00, 0x10};
-  EXPECT_EQ(from_base64("ABA="), expected_bytes);
-
-  std::vector<uint8_t> expected_bytes2 = {0x00};
-  EXPECT_EQ(from_base64("AA=="), expected_bytes2);
-}
-
-TEST(BytesTest, ToBase64Success) {
-  std::vector<uint8_t> input_bytes = {
-      0x00, 0x10, 0x83, 0x10, 0x51, 0x87, 0x20, 0x92, 0x8b, 0x30, 0xd3, 0x8f,
-      0x41, 0x14, 0x93, 0x51, 0x55, 0x97, 0x61, 0x96, 0x9b, 0x71, 0xd7, 0x9f,
-      0x82, 0x18, 0xa3, 0x92, 0x59, 0xa7, 0xa2, 0x9a, 0xab, 0xb2, 0xdb, 0xaf,
-      0xc3, 0x1c, 0xb3, 0xd3, 0x5d, 0xb7, 0xe3, 0x9e, 0xbb, 0xf3, 0xdf, 0xbf};
-  EXPECT_EQ(to_base64(input_bytes),
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
-}
-
-TEST(BytesTest, ToBase64OddLengthSuccess) {
-  std::vector<uint8_t> input_bytes = {0x00};
-  EXPECT_EQ(to_base64(input_bytes), "AA==");
-
-  std::vector<uint8_t> input_bytes2 = {0x00, 0x10};
-  EXPECT_EQ(to_base64(input_bytes2), "ABA=");
-}
-
-TEST(BytesTest, FromBase64AndBackSuccess) {
-  std::string encoded =
+TEST(BytesTest, Base64ConversionTest) {
+  std::string test_inout_1 =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-  EXPECT_EQ(to_base64(from_base64(encoded)), encoded);
+  EXPECT_EQ(Bytes::CreateFromBase64(test_inout_1).ToBase64(), test_inout_1);
+
+  std::string test_inout_2 = "AA==";
+  EXPECT_EQ(Bytes::CreateFromBase64(test_inout_2).ToBase64(), test_inout_2);
+
+  std::string test_inout_3 = "ABA=";
+  EXPECT_EQ(Bytes::CreateFromBase64(test_inout_3).ToBase64(), test_inout_3);
+
+  std::string test_in_4 = "ABC";
+  std::string test_out_4 = "ABCA";
+  EXPECT_EQ(Bytes::CreateFromBase64(test_in_4).ToBase64(), test_out_4);
 }
 
-}  // namespace cryptopals::util::bytes
+}  // namespace cryptopals::util
