@@ -7,14 +7,14 @@
 #include "absl/status/status.h"
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
+#include "cryptopals/util/logging.h"
 #include "cryptopals/util/string_utils.h"
-#include "loguru.hpp"
 
-ABSL_FLAG(std::string, from, "", "Format of input");
-ABSL_FLAG(std::string, to, "", "Format of output");
+ABSL_FLAG(std::string, from, "", "format of input(s)");
+ABSL_FLAG(std::string, to, "", "format of output(s)");
 
 int main(int argc, char **argv) {
-  loguru::init(argc, argv);
+  cryptopals::util::InitLogging(argc, argv);
   absl::SetProgramUsageMessage(absl::StrCat(
       "Converts input between various encoding formats.\nExample usage: ",
       argv[0], " --from hex --to base64 049A5CDF 1982EC 30FD7745"));

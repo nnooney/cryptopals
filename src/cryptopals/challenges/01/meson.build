@@ -7,7 +7,7 @@ executable(
   dependencies: [
     absl_flags_dep,
     cryptopals_enums_dep,
-    emilk_loguru_dep,
+    logging_dep,
   ],
   link_with: [
     bytes,
