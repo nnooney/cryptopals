@@ -3,6 +3,9 @@ bytes = library(
     files(
         'bytes.cpp',
     ),
+    dependencies: [
+        cryptopals_enums_dep,
+    ],
     include_directories: root_include,
 )
 
@@ -12,8 +15,8 @@ bytes_test = executable(
         'bytes_test.cpp',
     ),
     dependencies: [
+        cryptopals_enums_dep,
         gtest_main_dep,
-        gmock_dep,
     ],
     include_directories: root_include,
     link_with: bytes,

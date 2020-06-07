@@ -25,58 +25,36 @@ int main(int argc, char **argv) {
   std::string to_format_flag = absl::GetFlag(FLAGS_to);
   cryptopals::util::StrToUpper(&to_format_flag);
 
-  cryptopals::ConvertFormat from_format;
+  cryptopals::BytesEncodedFormat from_format;
   if (from_format_flag.empty()) {
     LOG(ERROR) << "Missing required option: --from";
     return 1;
   }
-  bool rc = ConvertFormat_Parse(from_format_flag, &from_format);
+  bool rc = BytesEncodedFormat_Parse(from_format_flag, &from_format);
   if (!rc) {
     LOG(ERROR) << "Unable to parse --from flag: " << from_format_flag;
     return 1;
   }
 
-  cryptopals::ConvertFormat to_format;
+  cryptopals::BytesEncodedFormat to_format;
   if (to_format_flag.empty()) {
     LOG(ERROR) << "Missing required option: --to";
     return 1;
   }
-  rc = ConvertFormat_Parse(to_format_flag, &to_format);
+  rc = BytesEncodedFormat_Parse(to_format_flag, &to_format);
   if (!rc) {
     LOG(ERROR) << "Unable to parse --to flag: " << to_format_flag;
     return 1;
   }
 
-  LOG(INFO) << "Converting from " << ConvertFormat_Name(from_format) << " to "
-            << ConvertFormat_Name(to_format);
+  LOG(INFO) << "Converting from " << BytesEncodedFormat_Name(from_format)
+            << " to " << BytesEncodedFormat_Name(to_format);
 
   for (int i = 1; i < positional_args.size(); ++i) {
-    cryptopals::util::Bytes bytes;
-    switch (from_format) {
-      case cryptopals::ConvertFormat::BASE64:
-        bytes = cryptopals::util::Bytes::CreateFromBase64(positional_args.at(i));
-        break;
-      case cryptopals::ConvertFormat::HEX:
-        bytes = cryptopals::util::Bytes::CreateFromHex(positional_args.at(i));
-        break;
-      default:
-        LOG(ERROR) << "Unsupported --from format: "
-                   << ConvertFormat_Name(from_format);
-        return 1;
-    }
+    cryptopals::util::Bytes bytes = cryptopals::util::Bytes::CreateFromFormat(
+        positional_args.at(i), from_format);
 
-    switch (to_format) {
-      case cryptopals::ConvertFormat::BASE64:
-        std::cout << bytes.ToBase64() << std::endl;
-        break;
-      case cryptopals::ConvertFormat::HEX:
-        std::cout << bytes.ToHex() << std::endl;
-        break;
-      default:
-        LOG(ERROR) << "Unsupported --to format: "
-                   << ConvertFormat_Name(to_format);
-        return 1;
-    }
+    std::cout << bytes.ToFormat(to_format) << std::endl;
   }
 
   return 0;

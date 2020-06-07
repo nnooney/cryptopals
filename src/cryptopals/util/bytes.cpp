@@ -100,6 +100,20 @@ Bytes Bytes::CreateFromBase64(const std::string_view base64_str) {
   return bytes;
 }
 
+Bytes Bytes::CreateFromFormat(const std::string_view input_str,
+                              cryptopals::BytesEncodedFormat format) {
+  switch (format) {
+    case cryptopals::BytesEncodedFormat::BASE64:
+      return cryptopals::util::Bytes::CreateFromBase64(input_str);
+    case cryptopals::BytesEncodedFormat::HEX:
+      return cryptopals::util::Bytes::CreateFromHex(input_str);
+    default: {
+      Bytes bytes;
+      return bytes;
+    }
+  }
+}
+
 std::string Bytes::ToHex() const {
   std::string hex_str;
   hex_str.reserve(BytesToHexSize(data_.size()));
@@ -111,7 +125,6 @@ std::string Bytes::ToHex() const {
 
   return hex_str;
 }
-
 
 std::string Bytes::ToBase64() const {
   std::string base64_str;
@@ -148,6 +161,31 @@ std::string Bytes::ToBase64() const {
   base64_str.append((4 - base64_str.size() % 4) % 4, base64_chars.back());
 
   return base64_str;
+}
+
+std::string Bytes::ToFormat(cryptopals::BytesEncodedFormat format) const {
+  switch (format) {
+    case cryptopals::BytesEncodedFormat::BASE64:
+      return ToBase64();
+    case cryptopals::BytesEncodedFormat::HEX:
+      return ToHex();
+    default:
+      return "(unrecognized format)";
+  }
+}
+
+Bytes& Bytes::operator^=(const Bytes& rhs) {
+  size_t i = 0;
+  for (uint8_t& byte : data_) {
+    byte ^= rhs.data_.at(i % rhs.data_.size());
+    ++i;
+  }
+  return *this;
+}
+
+Bytes operator^(Bytes lhs, const Bytes& rhs) {
+  lhs ^= rhs;
+  return lhs;
 }
 
 }  // namespace cryptopals::util

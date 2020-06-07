@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package cryptopals;
 
-enum ConvertFormat {
+enum BytesEncodedFormat {
   UNSPECIFIED = 0;
   HEX = 1;
   BASE64 = 2;

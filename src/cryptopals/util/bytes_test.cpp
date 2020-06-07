@@ -29,4 +29,13 @@ TEST(BytesTest, Base64ConversionTest) {
   EXPECT_EQ(Bytes::CreateFromBase64(test_in_4).ToBase64(), test_out_4);
 }
 
+TEST(BytesTest, XorTest) {
+  Bytes lhs = Bytes::CreateFromHex("1c0111001f010100061a024b53535009181c");
+  Bytes rhs = Bytes::CreateFromHex("686974207468652062756c6c277320657965");
+
+  Bytes expected_result =
+      Bytes::CreateFromHex("746865206b696420646f6e277420706c6179");
+  EXPECT_EQ(lhs ^ rhs, expected_result);
+}
+
 }  // namespace cryptopals::util
