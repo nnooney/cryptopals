@@ -86,7 +86,10 @@ absl::Status Crack(std::string_view encoded_text,
             std::greater<>());
 
   std::cout << ciphertext << std::endl;
-  for (int i = 0; i < 5 && i < decryption_results.size(); ++i) {
+  for (int i = 0; i < decryption_results.size(); ++i) {
+    if (decryption_results[i].score < 15) {
+      break;
+    }
     std::cout << std::hex << decryption_results[i] << std::endl;
   }
 
