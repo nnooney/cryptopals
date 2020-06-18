@@ -3,6 +3,14 @@ project('cryptopals', 'cpp',
     default_options: ['cpp_std=c++2a']
 )
 
-add_project_arguments('-Wno-sign-compare', language: 'cpp')
+# Compiler Options
+cpp = meson.get_compiler('cpp')
+
+cpp_flags = [
+  '-Wno-sign-compare',
+  '-Wno-deprecated-declarations',
+]
+flags = cpp.get_supported_arguments(cpp_flags)
+add_project_arguments(flags, language: 'cpp')
 
 subdir('src')

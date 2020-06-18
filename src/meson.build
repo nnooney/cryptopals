@@ -1,14 +1,5 @@
 root_include = include_directories('.')
 
-# Compiler Options
-cpp = meson.get_compiler('cpp')
-
-cpp_flags = [
-  '-Wno-deprecated-declarations',
-]
-flags = cpp.get_supported_arguments(cpp_flags)
-add_project_arguments(flags, language: 'cpp')
-
 # Include Abseil for utility code.
 absl_proj = subproject('abseil-cpp')
 absl_base_dep = absl_proj.get_variable('absl_base_dep')
