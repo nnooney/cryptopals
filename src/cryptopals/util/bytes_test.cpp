@@ -29,6 +29,11 @@ TEST(BytesTest, Base64ConversionTest) {
   EXPECT_EQ(Bytes::CreateFromBase64(test_in_4).ToBase64(), test_out_4);
 }
 
+TEST(BytesTest, RawConversionTest) {
+  std::string test_inout_1 = "Hello, World!";
+  EXPECT_EQ(Bytes::CreateFromRaw(test_inout_1).ToRaw(), test_inout_1);
+}
+
 TEST(BytesTest, XorTest) {
   Bytes lhs = Bytes::CreateFromHex("1c0111001f010100061a024b53535009181c");
   Bytes rhs = Bytes::CreateFromHex("686974207468652062756c6c277320657965");

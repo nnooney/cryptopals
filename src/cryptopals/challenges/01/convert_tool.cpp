@@ -28,23 +28,23 @@ int main(int argc, char **argv) {
   cryptopals::BytesEncodedFormat from_format;
   if (from_format_flag.empty()) {
     LOG(ERROR) << "Missing required option: --from";
-    return 1;
+    return static_cast<int>(absl::StatusCode::kInvalidArgument);
   }
   bool rc = BytesEncodedFormat_Parse(from_format_flag, &from_format);
   if (!rc) {
     LOG(ERROR) << "Unable to parse --from flag: " << from_format_flag;
-    return 1;
+    return static_cast<int>(absl::StatusCode::kInvalidArgument);
   }
 
   cryptopals::BytesEncodedFormat to_format;
   if (to_format_flag.empty()) {
     LOG(ERROR) << "Missing required option: --to";
-    return 1;
+    return static_cast<int>(absl::StatusCode::kInvalidArgument);
   }
   rc = BytesEncodedFormat_Parse(to_format_flag, &to_format);
   if (!rc) {
     LOG(ERROR) << "Unable to parse --to flag: " << to_format_flag;
-    return 1;
+    return static_cast<int>(absl::StatusCode::kInvalidArgument);
   }
 
   LOG(INFO) << "Converting from " << BytesEncodedFormat_Name(from_format)

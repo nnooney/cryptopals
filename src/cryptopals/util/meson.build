@@ -1,28 +1,3 @@
-bytes = library(
-    'bytes',
-    files(
-        'bytes.cpp',
-    ),
-    dependencies: [
-        cryptopals_enums_dep,
-    ],
-    include_directories: root_include,
-)
-
-bytes_test = executable(
-    'bytes_test',
-    files(
-        'bytes_test.cpp',
-    ),
-    dependencies: [
-        cryptopals_enums_dep,
-        gtest_main_dep,
-    ],
-    include_directories: root_include,
-    link_with: bytes,
-)
-test('bytes_test', bytes_test)
-
 logging = library(
     'logging',
     files(
@@ -42,6 +17,38 @@ logging_dep = declare_dependency(
     include_directories: root_include,
     link_with: logging,
 )
+
+bytes = library(
+    'bytes',
+    files(
+        'bytes.cpp',
+    ),
+    dependencies: [
+        cryptopals_enums_dep,
+    ],
+    include_directories: root_include,
+)
+bytes_dep = declare_dependency(
+    dependencies: [
+        cryptopals_enums_dep,
+    ],
+    include_directories: root_include,
+    link_with: bytes,
+)
+
+bytes_test = executable(
+    'bytes_test',
+    files(
+        'bytes_test.cpp',
+    ),
+    dependencies: [
+        cryptopals_enums_dep,
+        gtest_main_dep,
+    ],
+    include_directories: root_include,
+    link_with: bytes,
+)
+test('bytes_test', bytes_test)
 
 string_utils = library(
     'string_utils',

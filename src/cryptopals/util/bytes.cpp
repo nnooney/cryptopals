@@ -48,65 +48,15 @@ inline constexpr size_t BytesToBase64Size(size_t length) {
 
 }  // namespace
 
-Bytes Bytes::CreateFromHex(const std::string_view hex_str) {
-  Bytes bytes;
-  bytes.data_.reserve(HexToBytesSize(hex_str.size()));
-
-  for (size_t i = 0; i < hex_str.size(); i += hex_bytes_ratio) {
-    uint8_t byte = hex_chars.find(hex_str.at(i)) << 4;
-    if (i + 1 < hex_str.size()) {
-      byte |= hex_chars.find(hex_str.at(i + 1));
-    }
-    bytes.data_.push_back(byte);
-  }
-
-  return bytes;
-}
-
-Bytes Bytes::CreateFromBase64(const std::string_view base64_str) {
-  Bytes bytes;
-  bytes.data_.reserve(Base64ToBytesSize(base64_str.size()));
-
-  // This mask ensures that any padding characters '=' get treated as all 0's.
-  const uint32_t sextet_mask = 0x3F;
-
-  for (size_t i = 0; i < base64_str.size(); i += base64_bytes_ratio) {
-    size_t chars_left = base64_str.size() - i;
-    // For each chunk of {4} encoded characters, compress the four characters
-    // into three bytes. For example,
-    //   AAAAAA BBBBBB CCCCCC DDDDDD becomes AAAAAABB BBBBCCCC CCDDDDDD
-    uint32_t chunk = (base64_chars.find(base64_str.at(i)) & sextet_mask) << 18;
-    if (chars_left > 1) {
-      chunk |= (base64_chars.find(base64_str.at(i + 1)) & sextet_mask) << 12;
-    }
-    if (chars_left > 2) {
-      chunk |= (base64_chars.find(base64_str.at(i + 2)) & sextet_mask) << 6;
-    }
-    if (chars_left > 3) {
-      chunk |= base64_chars.find(base64_str.at(i + 3)) & sextet_mask;
-    }
-
-    bytes.data_.push_back(chunk >> 16 & 0xFF);
-    if (chars_left > 1 &&
-        (chars_left <= 2 || base64_str.at(i + 2) != base64_chars.back())) {
-      bytes.data_.push_back(chunk >> 8 & 0xFF);
-    }
-    if (chars_left > 2 &&
-        (chars_left <= 3 || base64_str.at(i + 3) != base64_chars.back())) {
-      bytes.data_.push_back(chunk & 0xFF);
-    }
-  }
-
-  return bytes;
-}
-
-Bytes Bytes::CreateFromFormat(const std::string_view input_str,
+Bytes Bytes::CreateFromFormat(const std::string_view input,
                               cryptopals::BytesEncodedFormat format) {
   switch (format) {
     case cryptopals::BytesEncodedFormat::BASE64:
-      return cryptopals::util::Bytes::CreateFromBase64(input_str);
+      return cryptopals::util::Bytes::CreateFromBase64(input);
     case cryptopals::BytesEncodedFormat::HEX:
-      return cryptopals::util::Bytes::CreateFromHex(input_str);
+      return cryptopals::util::Bytes::CreateFromHex(input);
+    case cryptopals::BytesEncodedFormat::RAW:
+      return cryptopals::util::Bytes::CreateFromRaw(input);
     default: {
       Bytes bytes;
       return bytes;
@@ -114,21 +64,82 @@ Bytes Bytes::CreateFromFormat(const std::string_view input_str,
   }
 }
 
-std::string Bytes::ToHex() const {
-  std::string hex_str;
-  hex_str.reserve(BytesToHexSize(data_.size()));
+Bytes Bytes::CreateFromBase64(const std::string_view input) {
+  Bytes bytes;
+  bytes.data_.reserve(Base64ToBytesSize(input.size()));
+  bytes.format_ = cryptopals::BytesEncodedFormat::BASE64;
 
-  for (uint8_t byte : data_) {
-    hex_str.append(1, hex_chars.at(byte >> 4));
-    hex_str.append(1, hex_chars.at(byte & 0x0F));
+  // This mask ensures that any padding characters '=' get treated as all 0's.
+  const uint32_t sextet_mask = 0x3F;
+
+  for (size_t i = 0; i < input.size(); i += base64_bytes_ratio) {
+    size_t chars_left = input.size() - i;
+    // For each chunk of {4} encoded characters, compress the four characters
+    // into three bytes. For example,
+    //   AAAAAA BBBBBB CCCCCC DDDDDD becomes AAAAAABB BBBBCCCC CCDDDDDD
+    uint32_t chunk = (base64_chars.find(input.at(i)) & sextet_mask) << 18;
+    if (chars_left > 1) {
+      chunk |= (base64_chars.find(input.at(i + 1)) & sextet_mask) << 12;
+    }
+    if (chars_left > 2) {
+      chunk |= (base64_chars.find(input.at(i + 2)) & sextet_mask) << 6;
+    }
+    if (chars_left > 3) {
+      chunk |= base64_chars.find(input.at(i + 3)) & sextet_mask;
+    }
+
+    bytes.data_.push_back(chunk >> 16 & 0xFF);
+    if (chars_left > 1 &&
+        (chars_left <= 2 || input.at(i + 2) != base64_chars.back())) {
+      bytes.data_.push_back(chunk >> 8 & 0xFF);
+    }
+    if (chars_left > 2 &&
+        (chars_left <= 3 || input.at(i + 3) != base64_chars.back())) {
+      bytes.data_.push_back(chunk & 0xFF);
+    }
   }
 
-  return hex_str;
+  return bytes;
+}
+
+Bytes Bytes::CreateFromHex(const std::string_view input) {
+  Bytes bytes;
+  bytes.data_.reserve(HexToBytesSize(input.size()));
+  bytes.format_ = cryptopals::BytesEncodedFormat::HEX;
+
+  for (size_t i = 0; i < input.size(); i += hex_bytes_ratio) {
+    uint8_t byte = hex_chars.find(input.at(i)) << 4;
+    if (i + 1 < input.size()) {
+      byte |= hex_chars.find(input.at(i + 1));
+    }
+    bytes.data_.push_back(byte);
+  }
+
+  return bytes;
+}
+
+Bytes Bytes::CreateFromRaw(const std::string_view input) {
+  Bytes bytes(input.begin(), input.end());
+  bytes.format_ = cryptopals::BytesEncodedFormat::RAW;
+  return bytes;
+}
+
+std::string Bytes::ToFormat(cryptopals::BytesEncodedFormat format) const {
+  switch (format) {
+    case cryptopals::BytesEncodedFormat::BASE64:
+      return ToBase64();
+    case cryptopals::BytesEncodedFormat::HEX:
+      return ToHex();
+    case cryptopals::BytesEncodedFormat::RAW:
+      return ToRaw();
+    default:
+      return "(unrecognized format)";
+  }
 }
 
 std::string Bytes::ToBase64() const {
-  std::string base64_str;
-  base64_str.reserve(BytesToBase64Size(data_.size()));
+  std::string result;
+  result.reserve(BytesToBase64Size(data_.size()));
 
   for (size_t i = 0; i < data_.size(); i += bytes_base64_ratio) {
     size_t bytes_left = data_.size() - i;
@@ -146,32 +157,37 @@ std::string Bytes::ToBase64() const {
       chunk |= (data_[i + 2] & 0x3F);
     }
 
-    base64_str.append(1, base64_chars.at(chunk >> 24 & 0xFF));
-    base64_str.append(1, base64_chars.at(chunk >> 16 & 0xFF));
+    result.append(1, base64_chars.at(chunk >> 24 & 0xFF));
+    result.append(1, base64_chars.at(chunk >> 16 & 0xFF));
     if (bytes_left > 1) {
-      base64_str.append(1, base64_chars.at(chunk >> 8 & 0xFF));
+      result.append(1, base64_chars.at(chunk >> 8 & 0xFF));
     }
 
     if (bytes_left > 2) {
-      base64_str.append(1, base64_chars.at(chunk & 0xFF));
+      result.append(1, base64_chars.at(chunk & 0xFF));
     }
   }
 
   // Add any padding chars if necessary.
-  base64_str.append((4 - base64_str.size() % 4) % 4, base64_chars.back());
+  result.append((4 - result.size() % 4) % 4, base64_chars.back());
 
-  return base64_str;
+  return result;
 }
 
-std::string Bytes::ToFormat(cryptopals::BytesEncodedFormat format) const {
-  switch (format) {
-    case cryptopals::BytesEncodedFormat::BASE64:
-      return ToBase64();
-    case cryptopals::BytesEncodedFormat::HEX:
-      return ToHex();
-    default:
-      return "(unrecognized format)";
+std::string Bytes::ToHex() const {
+  std::string result;
+  result.reserve(BytesToHexSize(data_.size()));
+
+  for (uint8_t byte : data_) {
+    result.append(1, hex_chars.at(byte >> 4));
+    result.append(1, hex_chars.at(byte & 0x0F));
   }
+
+  return result;
+}
+
+std::string Bytes::ToRaw(void) const {
+  return std::string(data_.begin(), data_.end());
 }
 
 Bytes& Bytes::operator^=(const Bytes& rhs) {
@@ -181,11 +197,6 @@ Bytes& Bytes::operator^=(const Bytes& rhs) {
     ++i;
   }
   return *this;
-}
-
-Bytes operator^(Bytes lhs, const Bytes& rhs) {
-  lhs ^= rhs;
-  return lhs;
 }
 
 }  // namespace cryptopals::util
