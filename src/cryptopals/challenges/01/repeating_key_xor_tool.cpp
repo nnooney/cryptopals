@@ -1,21 +1,16 @@
-#include <algorithm>
 #include <string>
-#include <vector>
 
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "absl/status/status.h"
-#include "cryptopals/cipher/decryption_result.h"
-#include "cryptopals/cipher/single_byte_xor.h"
-#include "cryptopals/frequency/english_ascii_analyzer.h"
+#include "cryptopals/cipher/repeating_key_xor.h"
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/logging.h"
 #include "cryptopals/util/string_utils.h"
 
-ABSL_FLAG(std::string, action, "",
-          "the action to perform (encrypt, decrypt, crack)");
+ABSL_FLAG(std::string, action, "", "the action to perform (encrypt, decrypt)");
 ABSL_FLAG(std::string, format, "", "format of the operands and output");
 ABSL_FLAG(std::string, key, "", "the key used to encrypt/decrypt a message");
 
@@ -29,17 +24,11 @@ absl::Status Encrypt(std::string_view encoded_text,
   if (key_flag.empty()) {
     return absl::InvalidArgumentError("Action ENCRYPT requires --key flag");
   }
-  Bytes key_bytes = Bytes::CreateFromFormat(key_flag, format);
-  if (key_bytes.size() != 1) {
-    return absl::InvalidArgumentError(absl::StrCat(
-        "Expected key length to be 1, but key length is ", key_bytes.size()));
-  }
-  uint8_t key = key_bytes.at(0);
-
+  Bytes key = Bytes::CreateFromFormat(key_flag, format);
   Bytes plaintext = Bytes::CreateFromRaw(encoded_text);
 
-  cryptopals::cipher::SingleByteXor single_byte_xor;
-  Bytes ciphertext = single_byte_xor.Encrypt(plaintext, key);
+  cryptopals::cipher::RepeatingKeyXor repeating_key_xor;
+  Bytes ciphertext = repeating_key_xor.Encrypt(plaintext, key);
   std::cout << ciphertext.ToFormat(format) << std::endl;
 
   return absl::OkStatus();
@@ -51,17 +40,11 @@ absl::Status Decrypt(std::string_view encoded_text,
   if (key_flag.empty()) {
     return absl::InvalidArgumentError("Action DECRYPT requires --key flag");
   }
-  Bytes key_bytes = Bytes::CreateFromFormat(key_flag, format);
-  if (key_bytes.size() != 1) {
-    return absl::InvalidArgumentError(absl::StrCat(
-        "Expected key length to be 1, but key length is ", key_bytes.size()));
-  }
-  uint8_t key = key_bytes.at(0);
-
+  Bytes key = Bytes::CreateFromFormat(key_flag, format);
   Bytes ciphertext = Bytes::CreateFromFormat(encoded_text, format);
 
-  cryptopals::cipher::SingleByteXor single_byte_xor;
-  Bytes plaintext = single_byte_xor.Decrypt(ciphertext, key);
+  cryptopals::cipher::RepeatingKeyXor repeating_key_xor;
+  Bytes plaintext = repeating_key_xor.Decrypt(ciphertext, key);
   std::cout << plaintext.ToRaw() << std::endl;
 
   return absl::OkStatus();
@@ -69,31 +52,7 @@ absl::Status Decrypt(std::string_view encoded_text,
 
 absl::Status Crack(std::string_view encoded_text,
                    cryptopals::BytesEncodedFormat format) {
-  const Bytes ciphertext = Bytes::CreateFromFormat(encoded_text, format);
-  std::vector<cryptopals::cipher::SingleByteXor::DecryptionResultType>
-      decryption_results;
-  cryptopals::cipher::SingleByteXor single_byte_xor;
-  cryptopals::frequency::EnglishAsciiAnalyzer english_ascii_analyzer;
-
-  for (uint8_t possible_key = 0; possible_key < UINT8_MAX; ++possible_key) {
-    Bytes decrypted_text = single_byte_xor.Decrypt(ciphertext, possible_key);
-    double score = english_ascii_analyzer.AnalyzeBytes(decrypted_text);
-    decryption_results.push_back({.score = score,
-                                  .decrypted_text = decrypted_text,
-                                  .key = possible_key});
-  }
-  std::sort(decryption_results.begin(), decryption_results.end(),
-            std::greater<>());
-
-  std::cout << ciphertext << std::endl;
-  for (int i = 0; i < decryption_results.size(); ++i) {
-    if (decryption_results[i].score < 15) {
-      break;
-    }
-    std::cout << std::hex << decryption_results[i] << std::endl;
-  }
-
-  return absl::OkStatus();
+  return absl::UnimplementedError("");
 }
 
 }  // namespace
@@ -101,7 +60,7 @@ absl::Status Crack(std::string_view encoded_text,
 int main(int argc, char** argv) {
   cryptopals::util::InitLogging(argc, argv);
   absl::SetProgramUsageMessage(
-      absl::StrCat("Explores the single-byte xor cipher. Possible operations "
+      absl::StrCat("Explores the repeating-key xor cipher. Possible operations "
                    "are defined with the --action flag."));
   std::vector<char*> positional_args = absl::ParseCommandLine(argc, argv);
 

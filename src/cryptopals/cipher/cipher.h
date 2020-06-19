@@ -20,7 +20,7 @@ class CipherInterface {
   using KeyParamType =
       std::conditional_t<std::is_trivially_copyable_v<KeyType> &&
                              sizeof(KeyType) <= sizeof(void*),
-                         KeyType, KeyType&>;
+                         const KeyType, const KeyType&>;
 
   // Provide a type for DecryptionResult objects that this Cipher implements.
   using DecryptionResultType = DecryptionResult<KeyType>;
@@ -30,12 +30,12 @@ class CipherInterface {
   // Encrypts `plaintext` using `key` and returns the encrypted ciphertext.
   virtual cryptopals::util::Bytes Encrypt(
       const cryptopals::util::Bytes& plaintext,
-      const KeyParamType key) const = 0;
+      KeyParamType key) const = 0;
 
   // Decrypts `ciphertext` using `key` and returns the decrypted plaintext.
   virtual cryptopals::util::Bytes Decrypt(
       const cryptopals::util::Bytes& ciphertext,
-      const KeyParamType key) const = 0;
+      KeyParamType key) const = 0;
 };
 
 }  // namespace cryptopals::cipher

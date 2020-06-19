@@ -1,9 +1,5 @@
 #include "cryptopals/cipher/single_byte_xor.h"
 
-#include <queue>
-
-#include "cryptopals/frequency/english_ascii_analyzer.h"
-
 namespace cryptopals::cipher {
 
 using cryptopals::util::Bytes;

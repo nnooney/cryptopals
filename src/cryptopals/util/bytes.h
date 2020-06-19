@@ -37,6 +37,11 @@ class Bytes {
     return bytes;
   }
 
+  // Sets the `format` of the Bytes object for printing.
+  inline void SetFormat(cryptopals::BytesEncodedFormat format) {
+    format_ = format;
+  }
+
   // Returns a std::string with the encoding `format` representing the bytes
   // of this object. Convenience functions are also provided for each supported
   // format.
