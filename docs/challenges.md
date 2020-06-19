@@ -30,7 +30,7 @@ example:
     1111 1111 2222 2222 3333 3333
 XOR abc
 
-# Repeat the right operant until it matches the length of the left operand.
+# Repeat the right operand until it matches the length of the left operand.
     1111 1111 2222 2222 3333 3333
 XOR abca bcab cabc abca bcab cabc
   = badb adba e89e 89e8 8f98 f98f
