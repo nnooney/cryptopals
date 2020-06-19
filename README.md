@@ -1,8 +1,8 @@
 # Cryptopals
 
 This repository contains my personal solutions to the
-[Cryptopals](https://cryptopals.com/) challenges. See `docs/` for my notes about
-the challenges.
+[Cryptopals](https://cryptopals.com/) challenges. See `docs/challenges.md` for
+my notes about the challenges.
 
 ## Building
 
