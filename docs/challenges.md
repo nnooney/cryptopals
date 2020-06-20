@@ -61,7 +61,7 @@ created an `AnalyzerInterface` which will analyze some bytes and produce a
 score indicating the likelihood of those bytes being the correct decryption. A
 higher score is a more likely decryption.
 
-The `EnglishAsciiAnalyzer` will score decrypted text based on the frequency of
+The `EnglishAsciiFrequencyAnalyzer` will score decrypted text based on the frequency of
 letters in the English language (note that each byte is expected to be encoded
 in ASCII). My scoring function is as follows: calculate the frequency of each
 letter in the observed text, and sum the differences between the observed
@@ -77,3 +77,13 @@ that was encoded with this format.
 
 Just use the `single_byte_xor_tool` against each string. I found that the actual
 solution had a score of `19.732` in my scoring system.
+
+### Challenge 5
+
+Because of the modified xor implemented in challenge 2, this challenge was also
+a breeze. I implemented the `RepeatingKeyXor` cipher with a `Bytes` object as
+the key.
+
+I did have a bit of trouble parsing the input correctly (since I use the command
+line to pass the input). I ended up opening a quoted string, then I manually
+entered a newline (no escaped `\n`), and finished the string.
