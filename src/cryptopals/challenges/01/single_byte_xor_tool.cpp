@@ -6,9 +6,9 @@
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "absl/status/status.h"
+#include "cryptopals/analysis/english_ascii_frequency_analyzer.h"
 #include "cryptopals/cipher/decryption_result.h"
 #include "cryptopals/cipher/single_byte_xor.h"
-#include "cryptopals/frequency/english_ascii_analyzer.h"
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/logging.h"
@@ -73,11 +73,11 @@ absl::Status Crack(std::string_view encoded_text,
   std::vector<cryptopals::cipher::SingleByteXor::DecryptionResultType>
       decryption_results;
   cryptopals::cipher::SingleByteXor single_byte_xor;
-  cryptopals::frequency::EnglishAsciiAnalyzer english_ascii_analyzer;
+  cryptopals::analysis::EnglishAsciiFrequencyAnalyzer english_ascii_frequency_analyzer;
 
   for (uint8_t possible_key = 0; possible_key < UINT8_MAX; ++possible_key) {
     Bytes decrypted_text = single_byte_xor.Decrypt(ciphertext, possible_key);
-    double score = english_ascii_analyzer.AnalyzeBytes(decrypted_text);
+    double score = english_ascii_frequency_analyzer.AnalyzeBytes(decrypted_text);
     decryption_results.push_back({.score = score,
                                   .decrypted_text = decrypted_text,
                                   .key = possible_key});

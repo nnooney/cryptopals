@@ -1,12 +1,12 @@
-#include "cryptopals/frequency/english_ascii_analyzer.h"
+#include "cryptopals/analysis/english_ascii_frequency_analyzer.h"
 
 #include <cctype>
 #include <cmath>
 #include <vector>
 
-#include "cryptopals/frequency/data/english.h"
+#include "cryptopals/analysis/data/english.h"
 
-namespace cryptopals::frequency {
+namespace cryptopals::analysis {
 namespace {
 
 // Calculates the number of occurrences of each English letter in `input`,
@@ -33,7 +33,7 @@ std::vector<size_t> TabulateLetters(const cryptopals::util::Bytes& input) {
 
 }  // namespace
 
-double EnglishAsciiAnalyzer::AnalyzeBytes(
+double EnglishAsciiFrequencyAnalyzer::AnalyzeBytes(
     const cryptopals::util::Bytes& input) {
   // Store a vector of the counts of each letter.
   std::vector<size_t> letter_frequencies = TabulateLetters(input);
@@ -55,4 +55,4 @@ double EnglishAsciiAnalyzer::AnalyzeBytes(
   return score;
 }
 
-}  // namespace cryptopals::frequency
+}  // namespace cryptopals::analysis

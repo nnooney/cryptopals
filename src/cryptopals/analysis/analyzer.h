@@ -3,7 +3,7 @@
 
 #include "cryptopals/util/bytes.h"
 
-namespace cryptopals::frequency {
+namespace cryptopals::analysis {
 
 // The AnalyzerInterface class describes the public interface required for an
 // analyzer.
@@ -12,10 +12,11 @@ class AnalyzerInterface {
   virtual ~AnalyzerInterface() {}
 
   // Calculate the match of `input` and return a score, represented as a double.
-  // The larger the number, the higher the match.
+  // A larger score means `input` more closely matches the criteria used for
+  // analysis.
   virtual double AnalyzeBytes(const cryptopals::util::Bytes& input) = 0;
 };
 
-}  // namespace cryptopals::frequency
+}  // namespace cryptopals::analysis
 
 #endif  // CRYPTOPALS_FREQUENCY_ANALYZER_H_

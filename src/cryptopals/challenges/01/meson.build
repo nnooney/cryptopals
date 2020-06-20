@@ -46,7 +46,7 @@ executable(
     logging_dep,
   ],
   link_with: [
-    english_ascii_analyzer,
+    english_ascii_frequency_analyzer,
     single_byte_xor,
     string_utils,
   ],
