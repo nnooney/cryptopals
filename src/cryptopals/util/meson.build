@@ -42,11 +42,10 @@ bytes_test = executable(
         'bytes_test.cpp',
     ),
     dependencies: [
-        cryptopals_enums_dep,
+        bytes_dep,
         gtest_main_dep,
     ],
     include_directories: root_include,
-    link_with: bytes,
 )
 test('bytes_test', bytes_test)
 
