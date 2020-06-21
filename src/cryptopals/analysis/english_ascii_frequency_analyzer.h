@@ -7,10 +7,9 @@ namespace cryptopals::analysis {
 
 // A frequency analyzer that calculates a score based on English ASCII text.
 class EnglishAsciiFrequencyAnalyzer : public AnalyzerInterface {
-  public:
-
-    // Implements AnalyzeBytes from AnalyzerInterface.
-    double AnalyzeBytes(const cryptopals::util::Bytes& input) override;
+ public:
+  // Implements AnalyzeBytes from AnalyzerInterface.
+  double AnalyzeBytes(const cryptopals::util::Bytes& input) override;
 };
 
 }  // namespace cryptopals::analysis

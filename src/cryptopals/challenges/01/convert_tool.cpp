@@ -13,12 +13,12 @@
 ABSL_FLAG(std::string, from, "", "format of input(s)");
 ABSL_FLAG(std::string, to, "", "format of output(s)");
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   cryptopals::util::InitLogging(argc, argv);
   absl::SetProgramUsageMessage(absl::StrCat(
       "Converts input between various encoding formats.\nExample usage: ",
       argv[0], " --from hex --to base64 049A5CDF 1982EC 30FD7745"));
-  std::vector<char *> positional_args = absl::ParseCommandLine(argc, argv);
+  std::vector<char*> positional_args = absl::ParseCommandLine(argc, argv);
 
   std::string from_format_flag = absl::GetFlag(FLAGS_from);
   cryptopals::util::StrToUpper(&from_format_flag);

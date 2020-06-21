@@ -14,9 +14,8 @@ class RepeatingKeyXor : public CipherInterface<cryptopals::util::Bytes> {
       const cryptopals::util::Bytes& key) const override;
 
   // Implements Decrypt from CipherInterface.
-  cryptopals::util::Bytes Decrypt(
-      const cryptopals::util::Bytes& ciphertext,
-      const cryptopals::util::Bytes& key) const ;
+  cryptopals::util::Bytes Decrypt(const cryptopals::util::Bytes& ciphertext,
+                                  const cryptopals::util::Bytes& key) const;
 };
 
 }  // namespace cryptopals::cipher

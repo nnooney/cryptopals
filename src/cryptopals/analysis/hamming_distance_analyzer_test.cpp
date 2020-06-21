@@ -1,8 +1,7 @@
 #include "cryptopals/analysis/hamming_distance_analyzer.h"
 
-#include "gtest/gtest.h"
-
 #include "cryptopals/util/bytes.h"
+#include "gtest/gtest.h"
 
 namespace cryptopals::analysis {
 

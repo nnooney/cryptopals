@@ -29,13 +29,11 @@ class CipherInterface {
 
   // Encrypts `plaintext` using `key` and returns the encrypted ciphertext.
   virtual cryptopals::util::Bytes Encrypt(
-      const cryptopals::util::Bytes& plaintext,
-      KeyParamType key) const = 0;
+      const cryptopals::util::Bytes& plaintext, KeyParamType key) const = 0;
 
   // Decrypts `ciphertext` using `key` and returns the decrypted plaintext.
   virtual cryptopals::util::Bytes Decrypt(
-      const cryptopals::util::Bytes& ciphertext,
-      KeyParamType key) const = 0;
+      const cryptopals::util::Bytes& ciphertext, KeyParamType key) const = 0;
 };
 
 }  // namespace cryptopals::cipher

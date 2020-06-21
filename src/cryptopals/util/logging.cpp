@@ -44,7 +44,8 @@ void InitLogging(int argc, char** argv) {
         absl::StrJoin({short_program_name, "log", "%s",
                        absl::FormatTime("%Y%m%d-%H%M%S", now, utc).c_str()},
                       ".");
-    std::string logfile_path = absl::StrJoin({"/tmp", logfile_name.c_str()}, "/");
+    std::string logfile_path =
+        absl::StrJoin({"/tmp", logfile_name.c_str()}, "/");
     std::string_view logfile_template(logfile_path);
 
     // Setup logging to /tmp/<program_name>.log.<severity_level>.<date>.<time>

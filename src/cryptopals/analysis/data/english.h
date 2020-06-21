@@ -33,9 +33,8 @@ inline constexpr double X = 0.150;
 inline constexpr double Y = 1.994;
 inline constexpr double Z = 0.077;
 
-inline constexpr double alphabet[26] = {
-  A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
-};
+inline constexpr double alphabet[26] = {A, B, C, D, E, F, G, H, I, J, K, L, M,
+                                        N, O, P, Q, R, S, T, U, V, W, X, Y, Z};
 
 }  // namespace cryptopals::analysis::english
 
