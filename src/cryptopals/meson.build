@@ -1,5 +1,6 @@
 subdir('proto')
 subdir('util')
+subdir('encoding')
 subdir('cipher')
 subdir('analysis')
 subdir('challenges')
