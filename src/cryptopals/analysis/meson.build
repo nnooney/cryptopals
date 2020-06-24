@@ -18,24 +18,10 @@ analyzer_interface_dep = declare_dependency(
     link_with: analyzer_interface,
 )
 
-english_ascii_frequency_analyzer = library(
-    'english_ascii_frequency_analyzer',
-    files(
-        'english_ascii_frequency_analyzer.cpp',
-    ),
+frequency_analyzer_dep = declare_dependency(
     dependencies: [
-        analyzer_interface_dep,
-        bytes_dep,
+        analyzer_interface_dep
     ],
-    include_directories: root_include,
-)
-english_ascii_frequency_analyzer_dep = declare_dependency(
-    dependencies: [
-        analyzer_interface_dep,
-        bytes_dep,
-    ],
-    include_directories: root_include,
-    link_with: english_ascii_frequency_analyzer,
 )
 
 hamming_distance_analyzer = library(

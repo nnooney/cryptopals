@@ -41,9 +41,10 @@ executable(
   dependencies: [
     absl_flags_dep,
     absl_status_dep,
+    ascii_dep,
     bytes_dep,
     cryptopals_enums_dep,
-    english_ascii_frequency_analyzer_dep,
+    frequency_analyzer_dep,
     logging_dep,
   ],
   link_with: [

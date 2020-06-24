@@ -1,10 +1,10 @@
 // Relative frequencies of letters in the English language. Data obtained from:
 // https://en.wikipedia.org/wiki/Letter_frequency
 
-#ifndef CRYPTOPALS_FREQUENCY_ENGLISH_H_
-#define CRYPTOPALS_FREQUENCY_ENGLISH_H_
+#ifndef CRYPTOPALS_ANALYSIS_DATA_ENGLISH_H_
+#define CRYPTOPALS_ANALYSIS_DATA_ENGLISH_H_
 
-namespace cryptopals::analysis::english {
+namespace cryptopals::analysis::data::english {
 
 inline constexpr double A = 8.497;
 inline constexpr double B = 1.492;
@@ -36,6 +36,6 @@ inline constexpr double Z = 0.077;
 inline constexpr double alphabet[26] = {A, B, C, D, E, F, G, H, I, J, K, L, M,
                                         N, O, P, Q, R, S, T, U, V, W, X, Y, Z};
 
-}  // namespace cryptopals::analysis::english
+}  // namespace cryptopals::analysis::data::english
 
-#endif  // CRYPTOPALS_FREQUENCY_ENGLISH_H_
+#endif  // CRYPTOPALS_ANALYSIS_DATA_ENGLISH_H_

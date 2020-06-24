@@ -2,11 +2,18 @@ syntax = "proto3";
 
 package cryptopals;
 
+// The encoded representation of raw bytes.
 enum BytesEncodedFormat {
   BYTES_ENCODED_FORMAT_UNSPECIFIED = 0;
   HEX = 1;
   BASE64 = 2;
   RAW = 3;
+}
+
+// The encoded representation of text.
+enum TextEncodedFormat {
+  TEXT_ENCODED_FORMAT_UNSPECIFIED = 0;
+  ASCII = 1;
 }
 
 enum CipherAction {

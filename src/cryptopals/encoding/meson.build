@@ -9,6 +9,14 @@ ascii = library(
   ],
   include_directories: root_include,
 )
+ascii_dep = declare_dependency(
+  dependencies: [
+    absl_container_dep,
+    bytes_dep,
+  ],
+  include_directories: root_include,
+  link_with: ascii,
+)
 
 ascii_test = executable(
   'ascii_test',

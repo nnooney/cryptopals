@@ -6,9 +6,11 @@
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "absl/status/status.h"
-#include "cryptopals/analysis/english_ascii_frequency_analyzer.h"
+#include "cryptopals/analysis/data/oanc_english.h"
+#include "cryptopals/analysis/frequency_analyzer.h"
 #include "cryptopals/cipher/decryption_result.h"
 #include "cryptopals/cipher/single_byte_xor.h"
+#include "cryptopals/encoding/ascii.h"
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/logging.h"
@@ -69,30 +71,29 @@ absl::Status Decrypt(std::string_view encoded_text,
 
 absl::Status Crack(std::string_view encoded_text,
                    cryptopals::BytesEncodedFormat format) {
+  using cryptopals::analysis::data::oanc_english::code_point_frequency;
+
   const Bytes ciphertext = Bytes::CreateFromFormat(encoded_text, format);
   std::vector<cryptopals::cipher::SingleByteXor::DecryptionResultType>
       decryption_results;
   cryptopals::cipher::SingleByteXor single_byte_xor;
-  cryptopals::analysis::EnglishAsciiFrequencyAnalyzer
-      english_ascii_frequency_analyzer;
+
+  cryptopals::analysis::FrequencyAnalyzer<uint8_t> frequency_analyzer(
+      absl::make_unique<cryptopals::encoding::AsciiEncoding>(),
+      code_point_frequency.begin(), code_point_frequency.end());
 
   for (uint8_t possible_key = 0; possible_key < UINT8_MAX; ++possible_key) {
     Bytes decrypted_text = single_byte_xor.Decrypt(ciphertext, possible_key);
-    double score =
-        english_ascii_frequency_analyzer.AnalyzeBytes(decrypted_text);
+    double score = frequency_analyzer.AnalyzeBytes(decrypted_text);
     decryption_results.push_back({.score = score,
                                   .decrypted_text = decrypted_text,
                                   .key = possible_key});
   }
-  std::sort(decryption_results.begin(), decryption_results.end(),
-            std::greater<>());
+  std::sort(decryption_results.begin(), decryption_results.end());
 
-  std::cout << ciphertext << std::endl;
-  for (int i = 0; i < decryption_results.size(); ++i) {
-    if (decryption_results[i].score < 15) {
-      break;
-    }
-    std::cout << std::hex << decryption_results[i] << std::endl;
+  if (decryption_results.begin()->score < 200) {
+    std::cout << ciphertext << std::endl;
+    std::cout << std::hex << *decryption_results.begin() << std::endl;
   }
 
   return absl::OkStatus();

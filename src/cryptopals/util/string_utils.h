@@ -1,5 +1,5 @@
-#ifndef CRYPTOPALS_UTILS_STRING_UTILS_H_
-#define CRYPTOPALS_UTILS_STRING_UTILS_H_
+#ifndef CRYPTOPALS_UTIL_STRING_UTILS_H_
+#define CRYPTOPALS_UTIL_STRING_UTILS_H_
 
 #include <string>
 
@@ -9,4 +9,4 @@ void StrToUpper(std::string* str);
 
 }  // namespace cryptopals::util
 
-#endif  // CRYPTOPALS_UTILS_STRING_UTILS_H_
+#endif  // CRYPTOPALS_UTIL_STRING_UTILS_H_
