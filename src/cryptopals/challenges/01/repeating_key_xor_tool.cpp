@@ -1,3 +1,6 @@
+#include <fstream>
+#include <iostream>
+#include <sstream>
 #include <string>
 
 #include "absl/flags/flag.h"
@@ -10,8 +13,10 @@
 #include "cryptopals/util/logging.h"
 #include "cryptopals/util/string_utils.h"
 
-ABSL_FLAG(std::string, action, "", "the action to perform (encrypt, decrypt)");
+ABSL_FLAG(std::string, action, "",
+          "the action to perform (encrypt, decrypt, crack)");
 ABSL_FLAG(std::string, format, "", "format of the operands and output");
+ABSL_FLAG(bool, file, "", "treat the input as a filepath rather than stdin");
 ABSL_FLAG(std::string, key, "", "the key used to encrypt/decrypt a message");
 
 namespace {
@@ -52,7 +57,15 @@ absl::Status Decrypt(std::string_view encoded_text,
 
 absl::Status Crack(std::string_view encoded_text,
                    cryptopals::BytesEncodedFormat format) {
-  return absl::UnimplementedError("");
+  const Bytes ciphertext = Bytes::CreateFromFormat(encoded_text, format);
+  cryptopals::cipher::RepeatingKeyXor repeating_key_xor;
+  cryptopals::cipher::RepeatingKeyXor::DecryptionResultType decryption_result =
+      repeating_key_xor.Crack(ciphertext);
+  decryption_result.key.SetFormat(format);
+
+  std::cout << std::hex << std::showbase << decryption_result << std::endl;
+
+  return absl::OkStatus();
 }
 
 }  // namespace
@@ -96,9 +109,21 @@ int main(int argc, char** argv) {
     return static_cast<int>(absl::StatusCode::kInvalidArgument);
   }
 
+  std::string ciphertext;
+  if (absl::GetFlag(FLAGS_file)) {
+    std::ifstream file_stream(positional_args.at(1));
+    std::ostringstream file_contents;
+    file_contents << file_stream.rdbuf();
+    ciphertext = file_contents.str();
+    ciphertext.erase(std::remove(ciphertext.begin(), ciphertext.end(), '\n'),
+                     ciphertext.end());
+  } else {
+    ciphertext = positional_args.at(1);
+  }
+
   switch (action) {
     case cryptopals::CipherAction::ENCRYPT: {
-      absl::Status status = Encrypt(positional_args.at(1), format);
+      absl::Status status = Encrypt(ciphertext, format);
       if (!status.ok()) {
         LOG(ERROR) << status;
         return static_cast<int>(status.code());
@@ -106,7 +131,7 @@ int main(int argc, char** argv) {
       break;
     }
     case cryptopals::CipherAction::DECRYPT: {
-      absl::Status status = Decrypt(positional_args.at(1), format);
+      absl::Status status = Decrypt(ciphertext, format);
       if (!status.ok()) {
         LOG(ERROR) << status;
         return static_cast<int>(status.code());
@@ -114,7 +139,7 @@ int main(int argc, char** argv) {
       break;
     }
     case cryptopals::CipherAction::CRACK: {
-      absl::Status status = Crack(positional_args.at(1), format);
+      absl::Status status = Crack(ciphertext, format);
       if (!status.ok()) {
         LOG(ERROR) << status;
         return static_cast<int>(status.code());

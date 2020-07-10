@@ -133,7 +133,7 @@ std::string Bytes::ToFormat(cryptopals::BytesEncodedFormat format) const {
     case cryptopals::BytesEncodedFormat::RAW:
       return ToRaw();
     default:
-      return "(unrecognized format)";
+      return "(unrecognized bytes format)";
   }
 }
 

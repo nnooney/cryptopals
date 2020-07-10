@@ -71,29 +71,12 @@ absl::Status Decrypt(std::string_view encoded_text,
 
 absl::Status Crack(std::string_view encoded_text,
                    cryptopals::BytesEncodedFormat format) {
-  using cryptopals::analysis::data::oanc_english::code_point_frequency;
-
   const Bytes ciphertext = Bytes::CreateFromFormat(encoded_text, format);
-  std::vector<cryptopals::cipher::SingleByteXor::DecryptionResultType>
-      decryption_results;
   cryptopals::cipher::SingleByteXor single_byte_xor;
-
-  cryptopals::analysis::FrequencyAnalyzer<uint8_t> frequency_analyzer(
-      absl::make_unique<cryptopals::encoding::AsciiEncoding>(),
-      code_point_frequency.begin(), code_point_frequency.end());
-
-  for (uint8_t possible_key = 0; possible_key < UINT8_MAX; ++possible_key) {
-    Bytes decrypted_text = single_byte_xor.Decrypt(ciphertext, possible_key);
-    double score = frequency_analyzer.AnalyzeBytes(decrypted_text);
-    decryption_results.push_back({.score = score,
-                                  .decrypted_text = decrypted_text,
-                                  .key = possible_key});
-  }
-  std::sort(decryption_results.begin(), decryption_results.end());
-
-  if (decryption_results.begin()->score < 200) {
-    std::cout << ciphertext << std::endl;
-    std::cout << std::hex << *decryption_results.begin() << std::endl;
+  cryptopals::cipher::SingleByteXor::DecryptionResultType decryption_result =
+      single_byte_xor.Crack(ciphertext);
+  if (decryption_result.score < 200) {
+    std::cout << std::hex << std::showbase << decryption_result << std::endl;
   }
 
   return absl::OkStatus();

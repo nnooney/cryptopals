@@ -16,6 +16,10 @@ class RepeatingKeyXor : public CipherInterface<cryptopals::util::Bytes> {
   // Implements Decrypt from CipherInterface.
   cryptopals::util::Bytes Decrypt(const cryptopals::util::Bytes& ciphertext,
                                   const cryptopals::util::Bytes& key) const;
+
+  // Cracks the cipher and returns the most likely decryption result for
+  // `ciphertext`.
+  DecryptionResultType Crack(const cryptopals::util::Bytes& ciphertext);
 };
 
 }  // namespace cryptopals::cipher

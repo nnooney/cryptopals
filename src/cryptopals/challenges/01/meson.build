@@ -41,14 +41,12 @@ executable(
   dependencies: [
     absl_flags_dep,
     absl_status_dep,
-    ascii_dep,
     bytes_dep,
     cryptopals_enums_dep,
-    frequency_analyzer_dep,
     logging_dep,
+    single_byte_xor_dep,
   ],
   link_with: [
-    single_byte_xor,
     string_utils,
   ],
 )
@@ -65,9 +63,9 @@ executable(
     bytes_dep,
     cryptopals_enums_dep,
     logging_dep,
+    repeating_key_xor_dep,
   ],
   link_with: [
-    repeating_key_xor,
     string_utils,
   ],
 )

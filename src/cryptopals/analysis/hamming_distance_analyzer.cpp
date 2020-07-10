@@ -19,14 +19,12 @@ struct HammingDistance {
 
 double HammingDistanceAnalyzer::CompareBytes(
     const cryptopals::util::Bytes& lhs, const cryptopals::util::Bytes& rhs) {
-  if (lhs.size() != rhs.size()) {
-    LOG(ERROR)
-        << "Cannot compute hamming distance for bytes of different length ("
-        << lhs.size() << " & " << rhs.size() << ")";
-  }
+  auto min_size = std::min(lhs.size(), rhs.size());
+  auto diff_size = std::max(lhs.size(), rhs.size()) - min_size;
 
-  return std::inner_product(lhs.begin(), lhs.end(), rhs.begin(), /*init=*/0,
-                            std::plus<int>(), HammingDistance());
+  return std::inner_product(lhs.begin(), lhs.begin() + min_size, rhs.begin(),
+                            /*init=*/0, std::plus<int>(), HammingDistance()) +
+         8 * diff_size;
 }
 
 }  // namespace cryptopals::analysis

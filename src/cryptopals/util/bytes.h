@@ -15,6 +15,18 @@ class Bytes {
  public:
   typedef std::vector<uint8_t> data_type;
 
+  // The constructors are only made public to support default constructors for
+  // aggregates. Prefer using a Create* function below to initialize a single
+  // object.
+  // Default constructor.
+  Bytes() = default;
+  // A constructor to create a Bytes object with `size` bytes.
+  explicit Bytes(data_type::size_type size) : data_(size) {}
+  // A constructor to create a Bytes object with the contents of the range
+  // [first, last).
+  template <class InputIt>
+  Bytes(InputIt first, InputIt last) : data_(first, last) {}
+
   // Create a Bytes object from an input string `input` with the encoding
   // `format`. The Bytes object is padded with 0s to the nearest byte.
   // Convenience functions are also provided for each supported format. The
@@ -35,6 +47,12 @@ class Bytes {
       bytes.data_.insert(bytes.data_.begin(), input >> (i * 8));
     }
     return bytes;
+  }
+
+  // Create a Bytes object from a range.
+  template <class InputIt>
+  static Bytes CreateFromRange(InputIt first, InputIt last) {
+    return Bytes(first, last);
   }
 
   // Sets the `format` of the Bytes object for printing.
@@ -86,17 +104,14 @@ class Bytes {
   inline data_type::reference at(data_type::size_type pos) {
     return data_.at(pos);
   }
+  inline data_type::const_reference at(data_type::size_type pos) const {
+    return data_.at(pos);
+  }
+  inline void push_back(data_type::const_reference value) {
+    data_.push_back(value);
+  }
 
  private:
-  // Default constructor.
-  Bytes() = default;
-  // A constructor to create a Bytes object with `size` bytes.
-  explicit Bytes(data_type::size_type size) : data_(size) {}
-  // A constructor to create a Bytes object with the contents of the range
-  // [first, last).
-  template <class InputIt>
-  Bytes(InputIt first, InputIt last) : data_(first, last) {}
-
   // A vector to hold the raw data contained in this class.
   data_type data_;
   // A type to hold the encoded format (used in printing).

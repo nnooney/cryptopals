@@ -7,7 +7,8 @@ namespace cryptopals::analysis {
 
 // An analyzer that calculates the hamming distance between two Bytes objects.
 // The hamming distance is the number of bits that are different between two
-// strings.
+// strings. The difference in bit lengths is of the Bytes objects is included
+// in the calculated score.
 class HammingDistanceAnalyzer : public AnalyzerInterface {
  public:
   // Implements CompareBytes from AnalyzerInterface.

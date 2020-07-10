@@ -4,9 +4,20 @@ single_byte_xor = library(
         'single_byte_xor.cpp',
     ),
     dependencies: [
+        ascii_dep,
         bytes_dep,
+        frequency_analyzer_dep,
     ],
     include_directories: root_include,
+)
+single_byte_xor_dep = declare_dependency(
+    dependencies: [
+        ascii_dep,
+        bytes_dep,
+        frequency_analyzer_dep,
+    ],
+    include_directories: root_include,
+    link_with: single_byte_xor,
 )
 
 repeating_key_xor = library(
@@ -16,8 +27,21 @@ repeating_key_xor = library(
     ),
     dependencies: [
         bytes_dep,
+        hamming_distance_analyzer_dep,
+        logging_dep,
+        single_byte_xor_dep,
     ],
     include_directories: root_include,
+)
+repeating_key_xor_dep = declare_dependency(
+    dependencies: [
+        bytes_dep,
+        hamming_distance_analyzer_dep,
+        logging_dep,
+        single_byte_xor_dep,
+    ],
+    include_directories: root_include,
+    link_with: repeating_key_xor,
 )
 
 repeating_key_xor_test = executable(

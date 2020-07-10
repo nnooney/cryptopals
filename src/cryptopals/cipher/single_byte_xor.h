@@ -17,6 +17,10 @@ class SingleByteXor : public CipherInterface<uint8_t> {
   // Implements Decrypt from CipherInterface.
   cryptopals::util::Bytes Decrypt(const cryptopals::util::Bytes& ciphertext,
                                   const uint8_t key) const override;
+
+  // Cracks the cipher and returns the most likely decryption result for
+  // `ciphertext`.
+  DecryptionResultType Crack(const cryptopals::util::Bytes& ciphertext);
 };
 
 }  // namespace cryptopals::cipher
