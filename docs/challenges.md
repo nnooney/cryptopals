@@ -12,6 +12,10 @@ To represent bytes, I chose to use the type `std::vector<uint8_t>`. The class `c
 
 To avoid encoding pitfalls, I will always construct bytes using a factory function that takes a `string_view` as input. I support the following formats: `hex`, `base64`, and `raw` (interpret the bytes of the string literally).
 
+```
+./build/src/cryptopals/challenges/01/convert_tool --from hex --to base64 49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d
+```
+
 ### Challenge 2
 
 While it says fixed xor, I found it much more helpful to implement what I'll call repeating xor. The right operand will be repeated or truncated in order to match the length of the left operand before performing the xor. Here's an example:
@@ -29,6 +33,10 @@ XOR abca bcab cabc abca bcab cabc
 
 Because I have a `Bytes` class, it naturally makes sense to overload `operator^` and `operator^=` to implement this.
 
+```
+./build/src/cryptopals/challenges/01/xor_tool --format hex 1234 ABCD
+```
+
 ### Challenge 3
 
 Lots of infrastructure is required for this.
@@ -43,9 +51,22 @@ The `EnglishAsciiFrequencyAnalyzer` will score decrypted text based on the frequ
 
 I can put this all together in the `single_byte_xor_tool` to crack ciphertext that was encoded with this format.
 
+```
+./build/src/cryptopals/challenges/01/single_byte_xor_tool --action encrypt --format hex --key AA 0123456789ABCDEFEDCBA9876543210 --logtostderr
+```
+
 ### Challenge 4
 
 Just use the `single_byte_xor_tool` against each string. I found that the actual solution had a score of `19.732` in my scoring system.
+
+However, I noticed that my scoring system was brittle to non letter characters, which are still common in ASCII. To solve this, I created a reference frequency table from `OANC` data. I created a `frequency_modeler` tool which will count the bytes in a series of input files and print out the relative frequency of each byte. I saved that in the `oanc_english` data to use in the `AnalyzerInterface`.
+
+I also updated the `frequency_analyzer` to plug in frequency data and calculate a chi-squared statistic against analyzed bytes to determine how closely they match the frequency data. With this more rigorous system, I can now handle all common ASCII characters in American English.
+
+```
+./build/src/cryptopals/tools/frequency_modeler --filemap oanc_files.txt | sort -n
+xargs -n 1 ./build/src/cryptopals/challenges/01/single_byte_xor_tool --action crack --format hex <src/cryptopals/challenges/01/data/4.txt
+```
 
 ### Challenge 5
 
@@ -53,6 +74,18 @@ Because of the modified xor implemented in challenge 2, this challenge was also 
 
 I did have a bit of trouble parsing the input correctly (since I use the command line to pass the input). I ended up opening a quoted string, then I manually entered a newline (no escaped `\n`), and finished the string.
 
+```
+./build/src/cryptopals/challenges/01/repeating_key_xor_tool --action encrypt --key 494345 --format hex --logtostderr "Burning em, if you ain't quick and nimble \nI go crazy when I hear a cymbal"
+```
+
 ### Challenge 6
 
-Breaking the `RepeatingKeyXor` cipher was a little bit more involved. I began by implementing the Hamming Distance Analyzer, which involved adding a `CompareBytes` method to the `AnalyzerInterface` class.
+Breaking the `RepeatingKeyXor` cipher was a little bit more involved. I began by implementing the Hamming Distance Analyzer, which involved adding a `CompareBytes` method to the `AnalyzerInterface` class. The modern C++ standard library provides functions to make this easy; I ended up using `std::inner_product` and `std::bitset::count` to implement this.
+
+The next step was to try to guess the key length from the ciphertext. I looped over the key lengths from 2 to 40 and split the ciphertext into chunks of the possible key length. I calculated the hamming distance between each pair of chunks, took the average, and divided it by the key length. It turns out that my specific implementation provided the correct key with the lowest score; however this is susceptible to noise, so I used the 4 most likely results in my next steps.
+
+For each possible key length `n`, I split the ciphertext into segments containing every `nth` byte and decrypted each individual segment using the single-byte XOR cipher. After recombining the decrypted text, I used the `frequency_analyzer` to ensure I retained the best solution for each tested key length.
+
+```sh
+./build/src/cryptopals/challenges/01/repeating_key_xor_tool --action crack --format base64 --file src/cryptopals/challenges/01/data/6.txt --logtostderr
+```
