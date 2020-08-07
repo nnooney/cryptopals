@@ -1,13 +1,14 @@
-#ifndef CRYPTOPALS_CIPHER_REPEATING_KEY_XOR_H_
-#define CRYPTOPALS_CIPHER_REPEATING_KEY_XOR_H_
+// DISCLAIMER: This algorithm is implemented for educational purposes only. By
+// no means is it guaranteed to be secure.
+
+#ifndef CRYPTOPALS_CIPHER_AES_ECB_H_
+#define CRYPTOPALS_CIPHER_AES_ECB_H_
 
 #include "cryptopals/cipher/symmetric_cipher.h"
-#include "cryptopals/util/bytes.h"
 
 namespace cryptopals::cipher {
 
-class RepeatingKeyXor
-    : public SymmetricCipherInterface<cryptopals::util::Bytes> {
+class AesEcb : public SymmetricCipherInterface<cryptopals::util::Bytes> {
  public:
   // Implements Encrypt from CipherInterface.
   cryptopals::util::Bytes Encrypt(
@@ -25,4 +26,4 @@ class RepeatingKeyXor
 
 }  // namespace cryptopals::cipher
 
-#endif  // CRYPTOPALS_CIPHER_REPEATING_KEY_XOR_H_
+#endif  // CRYPTOPALS_CIPHER_AES_ECB_H_

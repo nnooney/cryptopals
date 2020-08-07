@@ -1,270 +1,703 @@
-// This is a modified version of the protobuf file
-// src/google/protobuf/stubs/statusor.h obtained from
-// https://github.com/protocolbuffers/protobuf. Modifications are made to make
-// this class compatible with absl::Status instead of protobuf::util::Status.
+// This is a modified version of the iree file
+// iree/base/internal/statusor.h obtained from
+// https://github.com/google/iree. Modifications are made to make
+// this class compatible with absl::Status and to simplify namespaces.
 
-// Protocol Buffers - Google's data interchange format
-// Copyright 2008 Google Inc.  All rights reserved.
-// https://developers.google.com/protocol-buffers/
+// Copyright 2019 Google LLC
 //
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//     * Redistributions of source code must retain the above copyright
-// notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
-// copyright notice, this list of conditions and the following disclaimer
-// in the documentation and/or other materials provided with the
-// distribution.
-//     * Neither the name of Google Inc. nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
+//      https://www.apache.org/licenses/LICENSE-2.0
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-// StatusOr<T> is the union of a Status object and a T
-// object. StatusOr models the concept of an object that is either a
-// usable value, or an error Status explaining why such a value is
-// not present. To this end, StatusOr<T> does not allow its Status
-// value to be StatusCode::kOk. Further, StatusOr<T*> does not allow the
-// contained pointer to be nullptr.
-//
-// The primary use-case for StatusOr<T> is as the return value of a
-// function which may fail.
-//
-// Example client usage for a StatusOr<T>, where T is not a pointer:
-//
-//  StatusOr<float> result = DoBigCalculationThatCouldFail();
-//  if (result.ok()) {
-//    float answer = result.ValueOrDie();
-//    printf("Big calculation yielded: %f", answer);
-//  } else {
-//    LOG(ERROR) << result.status();
-//  }
-//
-// Example client usage for a StatusOr<T*>:
-//
-//  StatusOr<Foo*> result = FooFactory::MakeNewFoo(arg);
-//  if (result.ok()) {
-//    std::unique_ptr<Foo> foo(result.ValueOrDie());
-//    foo->DoSomethingCool();
-//  } else {
-//    LOG(ERROR) << result.status();
-//  }
-//
-// Example client usage for a StatusOr<std::unique_ptr<T>>:
-//
-//  StatusOr<std::unique_ptr<Foo>> result = FooFactory::MakeNewFoo(arg);
-//  if (result.ok()) {
-//    std::unique_ptr<Foo> foo = result.ConsumeValueOrDie();
-//    foo->DoSomethingCool();
-//  } else {
-//    LOG(ERROR) << result.status();
-//  }
-//
-// Example factory implementation returning StatusOr<T*>:
-//
-//  StatusOr<Foo*> FooFactory::MakeNewFoo(int arg) {
-//    if (arg <= 0) {
-//      return ::absl::Status(::util::error::INVALID_ARGUMENT,
-//                            "Arg must be positive");
-//    } else {
-//      return new Foo(arg);
-//    }
-//  }
-//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef CRYPTOPALS_UTIL_INTERNAL_STATUSOR_H_
 #define CRYPTOPALS_UTIL_INTERNAL_STATUSOR_H_
 
-#include <absl/status/status.h>
-
-#include <new>
-#include <string>
-#include <utility>
+#include "absl/base/attributes.h"
+#include "absl/status/status.h"
+#include "cryptopals/util/internal/status_builder.h"
 
 namespace absl {
-ABSL_NAMESPACE_BEGIN
 
 template <typename T>
-class StatusOr {
+class ABSL_MUST_USE_RESULT StatusOr;
+
+namespace internal_statusor {
+
+template <typename T, typename U>
+using IsStatusOrConversionAmbiguous =
+    absl::disjunction<std::is_constructible<T, StatusOr<U>&>,
+                      std::is_constructible<T, const StatusOr<U>&>,
+                      std::is_constructible<T, StatusOr<U>&&>,
+                      std::is_constructible<T, const StatusOr<U>&&>,
+                      std::is_convertible<StatusOr<U>&, T>,
+                      std::is_convertible<const StatusOr<U>&, T>,
+                      std::is_convertible<StatusOr<U>&&, T>,
+                      std::is_convertible<const StatusOr<U>&&, T>>;
+
+template <typename T, typename U>
+using IsStatusOrConversionAssigmentAmbiguous =
+    absl::disjunction<IsStatusOrConversionAmbiguous<T, U>,
+                      std::is_assignable<T&, StatusOr<U>&>,
+                      std::is_assignable<T&, const StatusOr<U>&>,
+                      std::is_assignable<T&, StatusOr<U>&&>,
+                      std::is_assignable<T&, const StatusOr<U>&&>>;
+
+template <typename T, typename U>
+struct IsAmbiguousStatusOrForInitialization
+    :  // Strip const-value refs from type and check again, else false_type.
+       public absl::conditional_t<
+           std::is_same<absl::remove_cv_t<absl::remove_reference_t<U>>,
+                        U>::value,
+           std::false_type,
+           IsAmbiguousStatusOrForInitialization<
+               T, absl::remove_cv_t<absl::remove_reference_t<U>>>> {};
+
+template <typename T, typename U>
+struct IsAmbiguousStatusOrForInitialization<T, StatusOr<U>>
+    : public IsStatusOrConversionAmbiguous<T, U> {};
+
+template <typename T, typename U>
+using IsStatusOrDirectInitializationAmbiguous = absl::disjunction<
+    std::is_same<StatusOr<T>, absl::remove_cv_t<absl::remove_reference_t<U>>>,
+    std::is_same<Status, absl::remove_cv_t<absl::remove_reference_t<U>>>,
+    std::is_same<StatusBuilder, absl::remove_cv_t<absl::remove_reference_t<U>>>,
+    std::is_same<absl::in_place_t,
+                 absl::remove_cv_t<absl::remove_reference_t<U>>>,
+    IsAmbiguousStatusOrForInitialization<T, U>>;
+
+template <typename T, typename U>
+using IsStatusOrDirectInitializationValid = absl::disjunction<
+    // The is_same allows nested status ors to ignore this check iff same type.
+    std::is_same<T, absl::remove_cv_t<absl::remove_reference_t<U>>>,
+    absl::negation<IsStatusOrDirectInitializationAmbiguous<T, U>>>;
+
+class Helper {
+ public:
+  ABSL_ATTRIBUTE_NORETURN static void HandleInvalidStatusCtorArg(Status*);
+  ABSL_ATTRIBUTE_NORETURN static void Crash(const Status& status);
+};
+
+// Construct an instance of T in `p` through placement new, passing Args... to
+// the constructor.
+// This abstraction is here mostly for the gcc performance fix.
+template <typename T, typename... Args>
+void PlacementNew(void* p, Args&&... args) {
+#if defined(__GNUC__) && !defined(__clang__)
+  // Teach gcc that 'p' cannot be null, fixing code size issues.
+  if (p == nullptr) __builtin_unreachable();
+#endif
+  new (p) T(std::forward<Args>(args)...);
+}
+
+// Helper base class to hold the data and all operations.
+// We move all this to a base class to allow mixing with the appropriate
+// TraitsBase specialization.
+template <typename T>
+class StatusOrData {
+  template <typename U>
+  friend class StatusOrData;
+
+ public:
+  StatusOrData() = delete;
+
+  StatusOrData(const StatusOrData& other) {
+    if (other.ok()) {
+      MakeValue(other.data_);
+      MakeStatus();
+    } else {
+      MakeStatus(other.status_);
+    }
+  }
+
+  StatusOrData(StatusOrData&& other) noexcept {
+    if (other.ok()) {
+      MakeValue(std::move(other.data_));
+      MakeStatus();
+    } else {
+      MakeStatus(std::move(other.status_));
+    }
+  }
+
+  template <typename U>
+  explicit StatusOrData(const StatusOrData<U>& other) {
+    if (other.ok()) {
+      MakeValue(other.data_);
+      MakeStatus();
+    } else {
+      MakeStatus(other.status_);
+    }
+  }
+
+  template <typename U>
+  explicit StatusOrData(StatusOrData<U>&& other) {
+    if (other.ok()) {
+      MakeValue(std::move(other.data_));
+      MakeStatus();
+    } else {
+      MakeStatus(std::move(other.status_));
+    }
+  }
+
+  template <typename... Args>
+  explicit StatusOrData(absl::in_place_t, Args&&... args)
+      : data_(std::forward<Args>(args)...) {
+    MakeStatus();
+  }
+
+  explicit StatusOrData(const T& value) : data_(value) { MakeStatus(); }
+  explicit StatusOrData(T&& value) : data_(std::move(value)) { MakeStatus(); }
+
+  explicit StatusOrData(const Status& status) : status_(status) {
+    EnsureNotOk();
+  }
+  explicit StatusOrData(Status&& status) : status_(status) { EnsureNotOk(); }
+
+  explicit StatusOrData(const StatusBuilder& builder) : status_(builder) {
+    EnsureNotOk();
+  }
+  explicit StatusOrData(StatusBuilder&& builder) : status_(std::move(builder)) {
+    EnsureNotOk();
+  }
+
+  StatusOrData& operator=(const StatusOrData& other) {
+    if (this == &other) return *this;
+    if (other.ok())
+      Assign(other.data_);
+    else
+      Assign(other.status_);
+    return *this;
+  }
+
+  StatusOrData& operator=(StatusOrData&& other) {
+    if (this == &other) return *this;
+    if (other.ok())
+      Assign(std::move(other.data_));
+    else
+      Assign(std::move(other.status_));
+    return *this;
+  }
+
+  ~StatusOrData() {
+    if (ok()) {
+      status_.~Status();
+      data_.~T();
+    } else {
+      status_.~Status();
+    }
+  }
+
+  void Assign(const T& value) {
+    if (ok()) {
+      data_.~T();
+      MakeValue(value);
+    } else {
+      MakeValue(value);
+      status_ = OkStatus();
+    }
+  }
+
+  void Assign(T&& value) {
+    if (ok()) {
+      data_.~T();
+      MakeValue(std::move(value));
+    } else {
+      MakeValue(std::move(value));
+      status_ = OkStatus();
+    }
+  }
+
+  void Assign(const Status& status) {
+    Clear();
+    status_ = status;
+    EnsureNotOk();
+  }
+
+  void Assign(Status&& status) {
+    Clear();
+    status_ = std::move(status);
+    EnsureNotOk();
+  }
+
+  bool ok() const { return status_.ok(); }
+
+ protected:
+  // status_ will always be active after the constructor.
+  // Union to be able to initialize exactly how we need without waste.
+  // Eg. in the copy constructor we use the default constructor of Status in
+  // the ok() path to avoid an extra Ref call.
+  union {
+    Status status_;
+  };
+
+  // data_ is active iff status_.ok()==true
+  struct Dummy {};
+  union {
+    // When T is const, we need some non-const object we can cast to void* for
+    // the placement new. dummy_ is that object.
+    Dummy dummy_;
+    T data_;
+  };
+
+  void Clear() {
+    if (ok()) data_.~T();
+  }
+
+  void EnsureOk() const {
+    if (!ok()) Helper::Crash(status_);
+  }
+
+  void EnsureNotOk() {
+    if (ok()) Helper::HandleInvalidStatusCtorArg(&status_);
+  }
+
+  // Construct the value (data_) through placement new with the passed arg.
+  template <typename Arg>
+  void MakeValue(Arg&& arg) {
+    internal_statusor::PlacementNew<T>(&dummy_, std::forward<Arg>(arg));
+  }
+
+  // Construct the status (status_) through placement new with the passed arg.
+  template <typename... Args>
+  void MakeStatus(Args&&... args) {
+    internal_statusor::PlacementNew<Status>(&status_,
+                                            std::forward<Args>(args)...);
+  }
+};
+
+// Helper base class to allow implicitly deleted constructors and assignment
+// operations in StatusOr.
+// TraitsBase will explicitly delete what it can't support and StatusOr will
+// inherit that behavior implicitly.
+template <bool Copy, bool Move>
+struct TraitsBase {
+  TraitsBase() = default;
+  TraitsBase(const TraitsBase&) = default;
+  TraitsBase(TraitsBase&&) = default;
+  TraitsBase& operator=(const TraitsBase&) = default;
+  TraitsBase& operator=(TraitsBase&&) = default;
+};
+
+template <>
+struct TraitsBase<false, true> {
+  TraitsBase() = default;
+  TraitsBase(const TraitsBase&) = delete;
+  TraitsBase(TraitsBase&&) = default;
+  TraitsBase& operator=(const TraitsBase&) = delete;
+  TraitsBase& operator=(TraitsBase&&) = default;
+};
+
+template <>
+struct TraitsBase<false, false> {
+  TraitsBase() = default;
+  TraitsBase(const TraitsBase&) = delete;
+  TraitsBase(TraitsBase&&) = delete;
+  TraitsBase& operator=(const TraitsBase&) = delete;
+  TraitsBase& operator=(TraitsBase&&) = delete;
+};
+
+}  // namespace internal_statusor
+
+// StatusOr<T> is the union of a Status object and a T object.
+//
+// A StatusOr object either holds a usable value, or an error Status explaining
+// why such a value is not present.
+template <typename T>
+class StatusOr : private internal_statusor::StatusOrData<T>,
+                 private internal_statusor::TraitsBase<
+                     std::is_copy_constructible<T>::value,
+                     std::is_move_constructible<T>::value> {
   template <typename U>
   friend class StatusOr;
 
+  typedef internal_statusor::StatusOrData<T> Base;
+
  public:
-  // Construct a new StatusOr with StatusCode::kUnknown status
-  StatusOr();
+  typedef T element_type;
 
-  // Construct a new StatusOr with the given non-ok status. After calling
-  // this constructor, calls to ValueOrDie() will CHECK-fail.
+  // Constructs a new StatusOr with StatusCode::kUnknown status.
+  explicit StatusOr();
+
+  // StatusOr<T> is copy constructible/assignable if T is copy constructible.
+  StatusOr(const StatusOr&) = default;
+  StatusOr& operator=(const StatusOr&) = default;
+
+  // StatusOr<T> is move constructible/assignable if T is move constructible.
+  StatusOr(StatusOr&&) = default;
+  StatusOr& operator=(StatusOr&&) = default;
+
+  // Converting constructors from StatusOr<U>, when T is constructible from U.
+  // To avoid ambiguity, they are disabled if T is also constructible from
+  // StatusOr<U>. Explicit iff the corresponding construction of T from U is
+  // explicit.
+  template <
+      typename U,
+      absl::enable_if_t<
+          absl::conjunction<
+              absl::negation<std::is_same<T, U>>,
+              std::is_constructible<T, const U&>,
+              std::is_convertible<const U&, T>,
+              absl::negation<internal_statusor::IsStatusOrConversionAmbiguous<
+                  T, U>>>::value,
+          int> = 0>
+  StatusOr(const StatusOr<U>& other)  // NOLINT
+      : Base(static_cast<const typename StatusOr<U>::Base&>(other)) {}
+  template <
+      typename U,
+      absl::enable_if_t<
+          absl::conjunction<
+              absl::negation<std::is_same<T, U>>,
+              std::is_constructible<T, const U&>,
+              absl::negation<std::is_convertible<const U&, T>>,
+              absl::negation<internal_statusor::IsStatusOrConversionAmbiguous<
+                  T, U>>>::value,
+          int> = 0>
+  explicit StatusOr(const StatusOr<U>& other)
+      : Base(static_cast<const typename StatusOr<U>::Base&>(other)) {}
+
+  template <
+      typename U,
+      absl::enable_if_t<
+          absl::conjunction<
+              absl::negation<std::is_same<T, U>>, std::is_constructible<T, U&&>,
+              std::is_convertible<U&&, T>,
+              absl::negation<internal_statusor::IsStatusOrConversionAmbiguous<
+                  T, U>>>::value,
+          int> = 0>
+  StatusOr(StatusOr<U>&& other)  // NOLINT
+      : Base(static_cast<typename StatusOr<U>::Base&&>(other)) {}
+  template <
+      typename U,
+      absl::enable_if_t<
+          absl::conjunction<
+              absl::negation<std::is_same<T, U>>, std::is_constructible<T, U&&>,
+              absl::negation<std::is_convertible<U&&, T>>,
+              absl::negation<internal_statusor::IsStatusOrConversionAmbiguous<
+                  T, U>>>::value,
+          int> = 0>
+  explicit StatusOr(StatusOr<U>&& other)
+      : Base(static_cast<typename StatusOr<U>::Base&&>(other)) {}
+
+  // Conversion copy/move assignment operator, T must be constructible and
+  // assignable from U. Only enable if T cannot be directly assigned from
+  // StatusOr<U>.
+  template <
+      typename U,
+      absl::enable_if_t<
+          absl::conjunction<
+              absl::negation<std::is_same<T, U>>,
+              std::is_constructible<T, const U&>,
+              std::is_assignable<T, const U&>,
+              absl::negation<
+                  internal_statusor::IsStatusOrConversionAssigmentAmbiguous<
+                      T, U>>>::value,
+          int> = 0>
+  StatusOr& operator=(const StatusOr<U>& other) {
+    this->Assign(other);
+    return *this;
+  }
+  template <
+      typename U,
+      absl::enable_if_t<
+          absl::conjunction<
+              absl::negation<std::is_same<T, U>>, std::is_constructible<T, U&&>,
+              std::is_assignable<T, U&&>,
+              absl::negation<
+                  internal_statusor::IsStatusOrConversionAssigmentAmbiguous<
+                      T, U>>>::value,
+          int> = 0>
+  StatusOr& operator=(StatusOr<U>&& other) {
+    this->Assign(std::move(other));
+    return *this;
+  }
+
+  // Constructs a new StatusOr with the given value. After calling this
+  // constructor, this->ok() will be true and the contained value may be
+  // retrieved with value(), operator*(), or operator->().
+  StatusOr(const T& value);
+
+  // Constructs a new StatusOr with the given non-ok status. After calling this
+  // constructor, this->ok() will be false and calls to value() will CHECK-fail.
+  StatusOr(const Status& status);
+  StatusOr& operator=(const Status& status);
+  StatusOr(const StatusBuilder& builder);
+  StatusOr& operator=(const StatusBuilder& builder);
+
+  // Similar to the `const T&` overload.
   //
-  // NOTE: Not explicit - we want to use StatusOr<T> as a return
-  // value, so it is convenient and sensible to be able to do 'return
-  // Status()' when the return type is StatusOr<T>.
-  //
-  // REQUIRES: status != StatusCode::kOk. This requirement is DCHECKed.
-  // In optimized builds, passing StatusCode::kOk here will have the effect
-  // of passing PosixErrorSpace::EINVAL as a fallback.
-  StatusOr(const Status& status);  // NOLINT
+  // REQUIRES: T is move constructible.
+  StatusOr(T&& value);
 
-  // Construct a new StatusOr with the given value. If T is a plain pointer,
-  // value must not be nullptr. After calling this constructor, calls to
-  // ValueOrDie() will succeed, and calls to status() will return OK.
-  //
-  // NOTE: Not explicit - we want to use StatusOr<T> as a return type
-  // so it is convenient and sensible to be able to do 'return T()'
-  // when when the return type is StatusOr<T>.
-  //
-  // REQUIRES: if T is a plain pointer, value != nullptr. This requirement is
-  // DCHECKed. In optimized builds, passing a null pointer here will have
-  // the effect of passing PosixErrorSpace::EINVAL as a fallback.
-  StatusOr(const T& value);  // NOLINT
+  // RValue versions of the operations declared above.
+  StatusOr(Status&& status);
+  StatusOr& operator=(Status&& status);
+  StatusOr(StatusBuilder&& builder);
+  StatusOr& operator=(StatusBuilder&& builder);
 
-  // Copy constructor.
-  StatusOr(const StatusOr& other);
+  // Constructs the inner value T in-place using the provided args, using the
+  // T(args...) constructor.
+  template <typename... Args>
+  explicit StatusOr(absl::in_place_t, Args&&... args);
+  template <typename U, typename... Args>
+  explicit StatusOr(absl::in_place_t, std::initializer_list<U> ilist,
+                    Args&&... args);
 
-  // Conversion copy constructor, T must be copy constructible from U
-  template <typename U>
-  StatusOr(const StatusOr<U>& other);
+  // Constructs the inner value T in-place using the provided args, using the
+  // T(U) (direct-initialization) constructor. Only valid if T can be
+  // constructed from a U. Can accept move or copy constructors. Explicit it
+  // U is not convertible to T. To avoid ambiguity, this is disabled if U is
+  // a StatusOr<J>, where J is convertible to T.
+  template <
+      typename U = T,
+      absl::enable_if_t<
+          absl::conjunction<
+              internal_statusor::IsStatusOrDirectInitializationValid<T, U&&>,
+              std::is_constructible<T, U&&>,
+              std::is_convertible<U&&, T>>::value,
+          int> = 0>
+  StatusOr(U&& u)  // NOLINT
+      : StatusOr(absl::in_place, std::forward<U>(u)) {}
 
-  // Assignment operator.
-  StatusOr& operator=(const StatusOr& other);
+  template <
+      typename U = T,
+      absl::enable_if_t<
+          absl::conjunction<
+              internal_statusor::IsStatusOrDirectInitializationValid<T, U&&>,
+              std::is_constructible<T, U&&>,
+              absl::negation<std::is_convertible<U&&, T>>>::value,
+          int> = 0>
+  explicit StatusOr(U&& u)  // NOLINT
+      : StatusOr(absl::in_place, std::forward<U>(u)) {}
 
-  // Conversion assignment operator, T must be assignable from U
-  template <typename U>
-  StatusOr& operator=(const StatusOr<U>& other);
-
-  // Returns a reference to our status. If this contains a T, then
-  // returns StatusCode::kOk.
-  const Status& status() const;
+  // Returns this->ok()
+  explicit operator bool() const { return ok(); }
 
   // Returns this->status().ok()
-  bool ok() const;
+  ABSL_MUST_USE_RESULT bool ok() const { return this->status_.ok(); }
 
-  // Returns a reference to our current value, or CHECK-fails if !this->ok().
-  // If you need to initialize a T object from the stored value,
-  // ConsumeValueOrDie() may be more efficient.
-  const T& ValueOrDie() const;
-  const T& value() const;
+  // Returns a reference to our status. If this contains a T, then
+  // returns OkStatus().
+  const Status& status() const&;
+  Status status() &&;
+
+  // Returns a reference to the held value if `this->ok()`, or CHECK-fails.
+  // If you have already checked the status using `this->ok()` or
+  // `operator bool()`, you probably want to use `operator*()` or `operator->()`
+  // to access the value instead of `value`.
+  const T& value() const&;
+  T& value() &;
+  const T&& value() const&&;
+  T&& value() &&;
+
+  // Returns a reference to the current value.
+  //
+  // REQUIRES: this->ok() == true, otherwise the behavior is undefined.
+  const T& operator*() const&;
+  T& operator*() &;
+  const T&& operator*() const&&;
+  T&& operator*() &&;
+
+  // Returns a pointer to the current value.
+  //
+  // REQUIRES: this->ok() == true, otherwise the behavior is undefined.
+  const T* operator->() const;
+  T* operator->();
+
+  // Returns a copy of the current value if this->ok() == true. Otherwise
+  // returns a default value.
+  template <typename U>
+  T value_or(U&& default_value) const&;
+  template <typename U>
+  T value_or(U&& default_value) &&;
+
+  // Ignores any errors. This method does nothing except potentially suppress
+  // complaints from any tools that are checking that errors are not dropped on
+  // the floor.
+  void IgnoreError() const;
 
  private:
-  Status status_;
-  T value_;
+  using internal_statusor::StatusOrData<T>::Assign;
+  template <typename U>
+  void Assign(const StatusOr<U>& other);
+  template <typename U>
+  void Assign(StatusOr<U>&& other);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 // Implementation details for StatusOr<T>
 
-namespace internal {
-
-class StatusOrHelper {
- public:
-  // Move type-agnostic error handling to the .cc.
-  static void Crash(const absl::Status& status);
-
-  // Customized behavior for StatusOr<T> vs. StatusOr<T*>
-  template <typename T>
-  struct Specialize;
-};
+template <typename T>
+StatusOr<T>::StatusOr() : Base(Status(StatusCode::kUnknown, "")) {}
 
 template <typename T>
-struct StatusOrHelper::Specialize {
-  // For non-pointer T, a reference can never be nullptr.
-  static inline bool IsValueNull(const T& t) { return false; }
-};
+StatusOr<T>::StatusOr(const T& value) : Base(value) {}
 
 template <typename T>
-struct StatusOrHelper::Specialize<T*> {
-  static inline bool IsValueNull(const T* t) { return t == nullptr; }
-};
-
-}  // namespace internal
+StatusOr<T>::StatusOr(const Status& status) : Base(status) {}
 
 template <typename T>
-inline StatusOr<T>::StatusOr() : status_(absl::StatusCode::kUnknown) {}
+StatusOr<T>::StatusOr(const StatusBuilder& builder) : Base(builder) {}
 
 template <typename T>
-inline StatusOr<T>::StatusOr(const Status& status) {
-  if (status.ok()) {
-    status_ = Status(StatusCode::kInternal,
-                     "StatusCode::kOk is not a valid argument.");
-  } else {
-    status_ = status;
-  }
-}
-
-template <typename T>
-inline StatusOr<T>::StatusOr(const T& value) {
-  if (internal::StatusOrHelper::Specialize<T>::IsValueNull(value)) {
-    status_ = Status(StatusCode::kInternal, "nullptr is not a valid argument.");
-  } else {
-    status_ = StatusCode::kOk;
-    value_ = value;
-  }
-}
-
-template <typename T>
-inline StatusOr<T>::StatusOr(const StatusOr<T>& other)
-    : status_(other.status_), value_(other.value_) {}
-
-template <typename T>
-inline StatusOr<T>& StatusOr<T>::operator=(const StatusOr<T>& other) {
-  status_ = other.status_;
-  value_ = other.value_;
+StatusOr<T>& StatusOr<T>::operator=(const Status& status) {
+  this->Assign(status);
   return *this;
 }
 
 template <typename T>
-template <typename U>
-inline StatusOr<T>::StatusOr(const StatusOr<U>& other)
-    : status_(other.status_), value_(other.status_.ok() ? other.value_ : T()) {}
+StatusOr<T>& StatusOr<T>::operator=(const StatusBuilder& builder) {
+  return *this = static_cast<Status>(builder);
+}
 
 template <typename T>
-template <typename U>
-inline StatusOr<T>& StatusOr<T>::operator=(const StatusOr<U>& other) {
-  status_ = other.status_;
-  if (status_.ok()) value_ = other.value_;
+StatusOr<T>::StatusOr(T&& value) : Base(std::move(value)) {}
+
+template <typename T>
+StatusOr<T>::StatusOr(Status&& status) : Base(std::move(status)) {}
+
+template <typename T>
+StatusOr<T>::StatusOr(StatusBuilder&& builder) : Base(std::move(builder)) {}
+
+template <typename T>
+StatusOr<T>& StatusOr<T>::operator=(Status&& status) {
+  this->Assign(std::move(status));
   return *this;
 }
 
 template <typename T>
-inline const Status& StatusOr<T>::status() const {
-  return status_;
+StatusOr<T>& StatusOr<T>::operator=(StatusBuilder&& builder) {
+  return *this = static_cast<Status>(std::move(builder));
 }
 
 template <typename T>
-inline bool StatusOr<T>::ok() const {
-  return status().ok();
-}
-
-template <typename T>
-inline const T& StatusOr<T>::ValueOrDie() const {
-  if (!status_.ok()) {
-    internal::StatusOrHelper::Crash(status_);
+template <typename U>
+inline void StatusOr<T>::Assign(const StatusOr<U>& other) {
+  if (other.ok()) {
+    this->Assign(other.value());
+  } else {
+    this->Assign(other.status());
   }
-  return value_;
 }
 
 template <typename T>
-inline const T& StatusOr<T>::value() const {
-  if (!status_.ok()) {
-    internal::StatusOrHelper::Crash(status_);
+template <typename U>
+inline void StatusOr<T>::Assign(StatusOr<U>&& other) {
+  if (other.ok()) {
+    this->Assign(std::move(other).value());
+  } else {
+    this->Assign(std::move(other).status());
   }
-  return value_;
+}
+template <typename T>
+template <typename... Args>
+StatusOr<T>::StatusOr(absl::in_place_t, Args&&... args)
+    : Base(absl::in_place, std::forward<Args>(args)...) {}
+
+template <typename T>
+template <typename U, typename... Args>
+StatusOr<T>::StatusOr(absl::in_place_t, std::initializer_list<U> ilist,
+                      Args&&... args)
+    : Base(absl::in_place, ilist, std::forward<Args>(args)...) {}
+
+template <typename T>
+const Status& StatusOr<T>::status() const& {
+  return this->status_;
+}
+template <typename T>
+Status StatusOr<T>::status() && {
+  return ok() ? OkStatus() : std::move(this->status_);
 }
 
-ABSL_NAMESPACE_END
+template <typename T>
+const T& StatusOr<T>::value() const& {
+  this->EnsureOk();
+  return this->data_;
+}
+
+template <typename T>
+T& StatusOr<T>::value() & {
+  this->EnsureOk();
+  return this->data_;
+}
+
+template <typename T>
+const T&& StatusOr<T>::value() const&& {
+  this->EnsureOk();
+  return std::move(this->data_);
+}
+
+template <typename T>
+T&& StatusOr<T>::value() && {
+  this->EnsureOk();
+  return std::move(this->data_);
+}
+
+template <typename T>
+const T& StatusOr<T>::operator*() const& {
+  this->EnsureOk();
+  return this->data_;
+}
+
+template <typename T>
+T& StatusOr<T>::operator*() & {
+  this->EnsureOk();
+  return this->data_;
+}
+
+template <typename T>
+const T&& StatusOr<T>::operator*() const&& {
+  this->EnsureOk();
+  return std::move(this->data_);
+}
+
+template <typename T>
+T&& StatusOr<T>::operator*() && {
+  this->EnsureOk();
+  return std::move(this->data_);
+}
+
+template <typename T>
+const T* StatusOr<T>::operator->() const {
+  this->EnsureOk();
+  return &this->data_;
+}
+
+template <typename T>
+T* StatusOr<T>::operator->() {
+  this->EnsureOk();
+  return &this->data_;
+}
+
+template <typename T>
+template <typename U>
+T StatusOr<T>::value_or(U&& default_value) const& {
+  if (ok()) {
+    return this->data_;
+  }
+  return std::forward<U>(default_value);
+}
+
+template <typename T>
+template <typename U>
+T StatusOr<T>::value_or(U&& default_value) && {
+  if (ok()) {
+    return std::move(this->data_);
+  }
+  return std::forward<U>(default_value);
+}
+
+template <typename T>
+void StatusOr<T>::IgnoreError() const {
+  // no-op
+}
+
 }  // namespace absl
 
 #endif  // CRYPTOPALS_UTIL_INTERNAL_STATUSOR_H_

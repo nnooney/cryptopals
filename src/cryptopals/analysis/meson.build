@@ -55,4 +55,9 @@ hamming_distance_analyzer_test = executable(
     ],
     include_directories: root_include,
 )
-test('hamming_distance_analyzer_test', hamming_distance_analyzer_test)
+test(
+    'hamming_distance_analyzer_test',
+    hamming_distance_analyzer_test,
+    protocol: 'gtest',
+    args: test_args,
+)

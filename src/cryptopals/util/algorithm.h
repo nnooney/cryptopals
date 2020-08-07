@@ -1,7 +1,19 @@
 #ifndef CRYPTOPALS_UTIL_ALGORITHM_H_
 #define CRYPTOPALS_UTIL_ALGORITHM_H_
 
+#include <cstdint>
+
 namespace cryptopals::util {
+
+// Calculates the smallest multiple of `n` greater than or equal to `value`.
+inline constexpr size_t CeilingMultiple(size_t value, size_t n) {
+  return (value + n - 1) / n * n;
+}
+
+// Calculates the largest multiple of `n` less than or equal to `value`.
+inline constexpr size_t FloorMultiple(size_t value, size_t n) {
+  return value / n * n;
+}
 
 // MapCombine combines two map-like containers by merging the contents of `rhs`
 // into `lhs`. Three cases can occur when combining:

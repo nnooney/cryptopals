@@ -31,4 +31,9 @@ ascii_test = executable(
   include_directories: root_include,
   link_with: ascii,
 )
-test('ascii_test', ascii_test)
+test(
+    'ascii_test',
+    ascii_test,
+    protocol: 'gtest',
+    args: test_args
+)

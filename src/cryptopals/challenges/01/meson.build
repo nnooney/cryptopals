@@ -69,3 +69,22 @@ executable(
     string_utils,
   ],
 )
+
+executable(
+  'aes_ecb_tool',
+  files(
+    'aes_ecb_tool.cpp',
+  ),
+  include_directories: root_include,
+  dependencies: [
+    absl_flags_dep,
+    absl_status_dep,
+    bytes_dep,
+    cryptopals_enums_dep,
+    logging_dep,
+    aes_ecb_dep,
+  ],
+  link_with: [
+    string_utils,
+  ],
+)

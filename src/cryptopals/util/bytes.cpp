@@ -5,6 +5,8 @@
 #include <string_view>
 #include <vector>
 
+#include "cryptopals/util/algorithm.h"
+
 namespace cryptopals::util {
 namespace {
 
@@ -18,11 +20,6 @@ constexpr std::string_view base64_chars =
 constexpr size_t hex_bytes_ratio = 2;     // 4 * {2} == 8 == 1 mod 8
 constexpr size_t bytes_base64_ratio = 3;  // 8 * {3} == 24 == 4 mod 6
 constexpr size_t base64_bytes_ratio = 4;  // 6 * {4} == 24 == 3 mod 8
-
-// Calculates the smallest multiple of `n` greater than or equal to `value`.
-inline constexpr size_t CeilingMultiple(size_t value, size_t n) {
-  return (value + n - 1) / n * n;
-}
 
 // Calculates the number of bytes needed to decode a hex string of `length`
 // chars, including padding.
@@ -108,7 +105,7 @@ Bytes Bytes::CreateFromHex(const std::string_view input) {
   bytes.format_ = cryptopals::BytesEncodedFormat::HEX;
 
   for (size_t i = 0; i < input.size(); i += hex_bytes_ratio) {
-    uint8_t byte = hex_chars.find(input.at(i)) << 4;
+    byte_type byte = hex_chars.find(input.at(i)) << 4;
     if (i + 1 < input.size()) {
       byte |= hex_chars.find(input.at(i + 1));
     }
@@ -178,7 +175,7 @@ std::string Bytes::ToHex() const {
   std::string result;
   result.reserve(BytesToHexSize(data_.size()));
 
-  for (uint8_t byte : data_) {
+  for (byte_type byte : data_) {
     result.append(1, hex_chars.at(byte >> 4));
     result.append(1, hex_chars.at(byte & 0x0F));
   }
@@ -192,7 +189,7 @@ std::string Bytes::ToRaw(void) const {
 
 Bytes& Bytes::operator^=(const Bytes& rhs) {
   size_t i = 0;
-  for (uint8_t& byte : data_) {
+  for (byte_type& byte : data_) {
     byte ^= rhs.data_.at(i % rhs.data_.size());
     ++i;
   }

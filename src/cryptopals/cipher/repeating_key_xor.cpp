@@ -20,6 +20,9 @@ using cryptopals::util::Bytes;
 // The maximum length of a key to try to decode using repeating key xor.
 constexpr size_t CONFIG_KEYSIZE_LIMIT = 40;
 
+// The number of key sizes to attempt to decrypt with.
+constexpr size_t CONFIG_KEYSIZE_ATTEMPTS = 4;
+
 // Splits `input` into a vector of bytes, each of length `n`. For example,
 // SplitBytes("ABCDEFGHIJ", 4) returns {"ABCD", "EFGH", "IJ"}.
 std::vector<Bytes> SplitBytes(const Bytes& input, size_t n) {
@@ -82,7 +85,7 @@ std::vector<KeysizeResult> CrackKeysize(const Bytes& ciphertext) {
     std::vector<Bytes> split_ciphertext = SplitBytes(ciphertext, i);
     std::vector<double> scores;
 
-    // Determine the hamming distance for all segments of the text.
+    // Determine the hamming distance for all pairwise segments of the text.
     for (auto c1 = split_ciphertext.begin(); c1 != split_ciphertext.end();
          ++c1) {
       for (auto c2 = c1 + 1; c2 != split_ciphertext.end(); ++c2) {
@@ -97,10 +100,10 @@ std::vector<KeysizeResult> CrackKeysize(const Bytes& ciphertext) {
     results.push_back({.score = score, .size = i});
   }
 
-  // Return the 4 most likely results.
+  // Return the most likely results.
   std::sort(results.begin(), results.end(),
             [](auto lhs, auto rhs) { return lhs.score < rhs.score; });
-  results.resize(4);
+  results.resize(CONFIG_KEYSIZE_ATTEMPTS);
 
   return results;
 }

@@ -1,5 +1,7 @@
 root_include = include_directories('.')
 
+test_args = ['alsologtostderr']
+
 # Include Abseil for utility code.
 absl_proj = subproject('abseil-cpp')
 absl_base_dep = absl_proj.get_variable('absl_base_dep')
@@ -29,5 +31,6 @@ gtest_proj = subproject('gtest')
 gtest_dep = gtest_proj.get_variable('gtest_dep')
 gtest_main_dep = gtest_proj.get_variable('gtest_main_dep')
 gmock_dep = gtest_proj.get_variable('gmock_dep')
+gmock_main_dep = gtest_proj.get_variable('gmock_main_dep')
 
 subdir('cryptopals')

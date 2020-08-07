@@ -10,7 +10,7 @@ namespace cryptopals::cipher {
 
 // The CipherInterface class defines the public interface required for a cipher.
 template <class KeyType>
-class CipherInterface {
+class SymmetricCipherInterface {
  public:
   // KeyParamType resolves to a reference type if the instantiated template type
   // is not trivially copyable or is "expensive" to copy (in this case,
@@ -25,7 +25,7 @@ class CipherInterface {
   // Provide a type for DecryptionResult objects that this Cipher implements.
   using DecryptionResultType = DecryptionResult<KeyType>;
 
-  virtual ~CipherInterface() {}
+  virtual ~SymmetricCipherInterface() {}
 
   // Encrypts `plaintext` using `key` and returns the encrypted ciphertext.
   virtual cryptopals::util::Bytes Encrypt(

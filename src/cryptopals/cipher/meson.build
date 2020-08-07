@@ -57,4 +57,30 @@ repeating_key_xor_test = executable(
     include_directories: root_include,
     link_with: repeating_key_xor,
 )
-test('repeating_key_xor_test', repeating_key_xor_test)
+test(
+    'repeating_key_xor_test',
+    repeating_key_xor_test,
+    protocol: 'gtest',
+    args: test_args,
+)
+
+aes_ecb = library(
+    'aes_ecb',
+    files(
+        'aes_ecb.cpp',
+    ),
+    dependencies: [
+        aes_dep,
+        bytes_dep,
+        logging_dep,
+        statusor_dep,
+    ],
+    include_directories: root_include,
+)
+aes_ecb_dep = declare_dependency(
+    dependencies: [
+        bytes_dep,
+    ],
+    include_directories: root_include,
+    link_with: aes_ecb,
+)

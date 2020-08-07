@@ -18,6 +18,45 @@ logging_dep = declare_dependency(
     link_with: logging,
 )
 
+status_builder = library(
+    'status_builder',
+    files(
+        'internal/status_builder.cpp',
+    ),
+    dependencies: [
+        absl_status_dep,
+    ],
+    include_directories: root_include,
+)
+status_builder_dep = declare_dependency(
+    dependencies: [
+        absl_status_dep,
+    ],
+    include_directories: root_include,
+    link_with: status_builder,
+)
+statusor = library(
+    'statusor',
+    files(
+        'internal/statusor.cpp',
+    ),
+    dependencies: [
+        absl_status_dep,
+        logging_dep,
+        status_builder_dep,
+    ],
+    include_directories: root_include,
+)
+statusor_dep = declare_dependency(
+    dependencies: [
+        absl_status_dep,
+        logging_dep,
+        status_builder_dep,
+    ],
+    include_directories: root_include,
+    link_with: statusor,
+)
+
 bytes = library(
     'bytes',
     files(
@@ -47,7 +86,12 @@ bytes_test = executable(
     ],
     include_directories: root_include,
 )
-test('bytes_test', bytes_test)
+test(
+    'bytes_test',
+    bytes_test,
+    protocol: 'gtest',
+    args: test_args,
+)
 
 string_utils = library(
     'string_utils',
@@ -57,15 +101,45 @@ string_utils = library(
     include_directories: root_include,
 )
 
-# Internal
-
-statusor = library(
-    'statusor',
+aes = library(
+    'aes',
     files(
-        'internal/statusor.cpp',
+        'aes.cpp',
     ),
     dependencies: [
         absl_status_dep,
+        absl_strings_dep,
+        bytes_dep,
+        statusor_dep,
     ],
     include_directories: root_include,
+)
+aes_dep = declare_dependency(
+    dependencies: [
+        absl_status_dep,
+        absl_strings_dep,
+        bytes_dep,
+        statusor_dep,
+    ],
+    include_directories: root_include,
+    link_with: aes,
+)
+aes_test = executable(
+    'aes_test',
+    files(
+        'aes_test.cpp',
+    ),
+    dependencies: [
+        aes_dep,
+        bytes_dep,
+        gmock_main_dep,
+        statusor_dep,
+    ],
+    include_directories: root_include,
+)
+test(
+    'aes_test',
+    aes_test,
+    protocol: 'gtest',
+    args: test_args,
 )

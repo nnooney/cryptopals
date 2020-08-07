@@ -13,7 +13,8 @@ namespace cryptopals::util {
 
 class Bytes {
  public:
-  typedef std::vector<uint8_t> data_type;
+  using byte_type = uint8_t;
+  using data_type = std::vector<byte_type>;
 
   // The constructors are only made public to support default constructors for
   // aggregates. Prefer using a Create* function below to initialize a single
@@ -53,6 +54,11 @@ class Bytes {
   template <class InputIt>
   static Bytes CreateFromRange(InputIt first, InputIt last) {
     return Bytes(first, last);
+  }
+
+  // Appends the `other` Bytes object to this Bytes object.
+  inline void Append(const Bytes& other) {
+    data_.insert(data_.end(), other.begin(), other.end());
   }
 
   // Sets the `format` of the Bytes object for printing.
@@ -115,7 +121,7 @@ class Bytes {
   // A vector to hold the raw data contained in this class.
   data_type data_;
   // A type to hold the encoded format (used in printing).
-  cryptopals::BytesEncodedFormat format_;
+  cryptopals::BytesEncodedFormat format_ = cryptopals::HEX;
 };
 
 }  // namespace cryptopals::util

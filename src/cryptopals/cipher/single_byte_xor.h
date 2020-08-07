@@ -3,12 +3,12 @@
 
 #include <cstdint>
 
-#include "cryptopals/cipher/cipher.h"
+#include "cryptopals/cipher/symmetric_cipher.h"
 #include "cryptopals/util/bytes.h"
 
 namespace cryptopals::cipher {
 
-class SingleByteXor : public CipherInterface<uint8_t> {
+class SingleByteXor : public SymmetricCipherInterface<uint8_t> {
  public:
   // Implements Encrypt from CipherInterface.
   cryptopals::util::Bytes Encrypt(const cryptopals::util::Bytes& plaintext,
