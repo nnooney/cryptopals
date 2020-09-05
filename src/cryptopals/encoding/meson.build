@@ -1,19 +1,17 @@
-ascii = library(
-  'ascii',
-  files(
-    'ascii.cpp',
-  ),
-  dependencies: [
+ascii_dependencies = [
     absl_container_dep,
     bytes_dep,
-  ],
-  include_directories: root_include,
+]
+ascii = library(
+    'ascii',
+    files(
+        'ascii.cpp',
+    ),
+    dependencies: ascii_dependencies,
+    include_directories: root_include,
 )
 ascii_dep = declare_dependency(
-  dependencies: [
-    absl_container_dep,
-    bytes_dep,
-  ],
+  dependencies: ascii_dependencies,
   include_directories: root_include,
   link_with: ascii,
 )
@@ -24,12 +22,10 @@ ascii_test = executable(
     'ascii_test.cpp',
   ),
   dependencies: [
-    absl_container_dep,
-    bytes_dep,
-    gtest_main_dep,
-  ],
+      ascii_dep,
+      gtest_main_dep,
+   ],
   include_directories: root_include,
-  link_with: ascii,
 )
 test(
     'ascii_test',

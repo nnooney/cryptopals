@@ -1,76 +1,70 @@
+logging_dependencies = [
+    absl_flags_dep,
+    emilk_loguru_dep,
+]
 logging = library(
     'logging',
     files(
         'logging.cpp',
     ),
-    dependencies: [
-        absl_flags_dep,
-        emilk_loguru_dep,
-    ],
+    dependencies: logging_dependencies,
     include_directories: root_include,
 )
 logging_dep = declare_dependency(
-    dependencies: [
-        absl_flags_dep,
-        emilk_loguru_dep,
-    ],
+    dependencies: logging_dependencies,
     include_directories: root_include,
     link_with: logging,
 )
 
+status_builder_dependencies = [
+    absl_status_dep,
+]
 status_builder = library(
     'status_builder',
     files(
         'internal/status_builder.cpp',
     ),
-    dependencies: [
-        absl_status_dep,
-    ],
+    dependencies: status_builder_dependencies,
     include_directories: root_include,
 )
 status_builder_dep = declare_dependency(
-    dependencies: [
-        absl_status_dep,
-    ],
+    dependencies: status_builder_dependencies,
     include_directories: root_include,
     link_with: status_builder,
 )
+
+statusor_dependencies = [
+    absl_status_dep,
+    logging_dep,
+    status_builder_dep,
+]
 statusor = library(
     'statusor',
     files(
         'internal/statusor.cpp',
     ),
-    dependencies: [
-        absl_status_dep,
-        logging_dep,
-        status_builder_dep,
-    ],
+    dependencies: statusor_dependencies,
     include_directories: root_include,
 )
 statusor_dep = declare_dependency(
-    dependencies: [
-        absl_status_dep,
-        logging_dep,
-        status_builder_dep,
-    ],
+    dependencies: statusor_dependencies,
     include_directories: root_include,
     link_with: statusor,
 )
 
+bytes_dependencies = [
+    cryptopals_enums_dep,
+]
 bytes = library(
     'bytes',
     files(
         'bytes.cpp',
     ),
-    dependencies: [
-        cryptopals_enums_dep,
-    ],
+    dependencies: bytes_dependencies,
     include_directories: root_include,
 )
 bytes_dep = declare_dependency(
-    dependencies: [
-        cryptopals_enums_dep,
-    ],
+    dependencies: bytes_dependencies,
     include_directories: root_include,
     link_with: bytes,
 )
@@ -93,20 +87,19 @@ test(
     args: test_args,
 )
 
+bytes_util_dependencies = [
+    bytes_dep,
+]
 bytes_util = library(
     'bytes_util',
     files(
         'bytes_util.cpp',
     ),
-    dependencies: [
-        bytes_dep,
-    ],
+    dependencies: bytes_util_dependencies,
     include_directories: root_include,
 )
 bytes_util_dep = declare_dependency(
-    dependencies: [
-        bytes_dep,
-    ],
+    dependencies: bytes_util_dependencies,
     include_directories: root_include,
     link_with: bytes_util,
 )
@@ -123,26 +116,22 @@ string_utils_dep = declare_dependency(
     link_with: string_utils,
 )
 
+aes_dependencies = [
+    absl_status_dep,
+    absl_strings_dep,
+    bytes_dep,
+    statusor_dep,
+]
 aes = library(
     'aes',
     files(
         'aes.cpp',
     ),
-    dependencies: [
-        absl_status_dep,
-        absl_strings_dep,
-        bytes_dep,
-        statusor_dep,
-    ],
+    dependencies: aes_dependencies,
     include_directories: root_include,
 )
 aes_dep = declare_dependency(
-    dependencies: [
-        absl_status_dep,
-        absl_strings_dep,
-        bytes_dep,
-        statusor_dep,
-    ],
+    dependencies: aes_dependencies,
     include_directories: root_include,
     link_with: aes,
 )
@@ -153,9 +142,7 @@ aes_test = executable(
     ),
     dependencies: [
         aes_dep,
-        bytes_dep,
         gmock_main_dep,
-        statusor_dep,
     ],
     include_directories: root_include,
 )
@@ -166,26 +153,22 @@ test(
     args: test_args,
 )
 
+tool_helpers_dependencies = [
+    cryptopals_enums_dep,
+    logging_dep,
+    statusor_dep,
+    string_utils_dep,
+]
 tool_helpers = library(
     'tool_helpers',
     files(
         'tool_helpers.cpp',
     ),
-    dependencies: [
-        cryptopals_enums_dep,
-        logging_dep,
-        statusor_dep,
-        string_utils_dep,
-    ],
+    dependencies: tool_helpers_dependencies,
     include_directories: root_include,
 )
 tool_helpers_dep = declare_dependency(
-    dependencies: [
-        cryptopals_enums_dep,
-        logging_dep,
-        statusor_dep,
-        string_utils_dep,
-    ],
+    dependencies: tool_helpers_dependencies,
     include_directories: root_include,
     link_with: tool_helpers,
 )

@@ -26,6 +26,12 @@ protobuf_proj = subproject('protobuf')
 protobuf_dep = protobuf_proj.get_variable('protobuf_dep')
 protoc = protobuf_proj.get_variable('protoc')
 
+protoc_generator = generator(
+    protoc,
+    output: ['@BASENAME@.pb.cc', '@BASENAME@.pb.h'],
+    arguments: ['--cpp_out', '@BUILD_DIR@', '-I@CURRENT_SOURCE_DIR@', '@PLAINNAME@']
+)
+
 # Include GoogleTest for all test code.
 gtest_proj = subproject('gtest')
 gtest_dep = gtest_proj.get_variable('gtest_dep')

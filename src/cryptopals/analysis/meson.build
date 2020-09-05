@@ -1,19 +1,17 @@
+analyzer_interface_dependencies = [
+    bytes_dep,
+    logging_dep,
+]
 analyzer_interface = library(
     'analyzer_interface',
     files(
         'analyzer.cpp',
     ),
-    dependencies: [
-        bytes_dep,
-        logging_dep,
-    ],
+    dependencies: analyzer_interface_dependencies,
     include_directories: root_include,
 )
 analyzer_interface_dep = declare_dependency(
-    dependencies: [
-        bytes_dep,
-        logging_dep,
-    ],
+    dependencies: analyzer_interface_dependencies,
     include_directories: root_include,
     link_with: analyzer_interface,
 )
@@ -24,22 +22,20 @@ frequency_analyzer_dep = declare_dependency(
     ],
 )
 
+hamming_distance_analyzer_dependencies = [
+    analyzer_interface_dep,
+    bytes_dep,
+]
 hamming_distance_analyzer = library(
     'hamming_distance_analyzer',
     files(
         'hamming_distance_analyzer.cpp',
     ),
-    dependencies: [
-        analyzer_interface_dep,
-        bytes_dep,
-    ],
+    dependencies: hamming_distance_analyzer_dependencies,
     include_directories: root_include,
 )
 hamming_distance_analyzer_dep = declare_dependency(
-    dependencies: [
-        analyzer_interface_dep,
-        bytes_dep,
-    ],
+    dependencies: hamming_distance_analyzer_dependencies,
     include_directories: root_include,
     link_with: hamming_distance_analyzer,
 )
@@ -62,24 +58,21 @@ test(
     args: test_args,
 )
 
+aes_block_analyzer_dependencies = [
+    analyzer_interface_dep,
+    bytes_dep,
+    bytes_util_dep,
+]
 aes_block_analyzer = library(
     'aes_block_analyzer',
     files(
         'aes_block_analyzer.cpp',
     ),
-    dependencies: [
-        analyzer_interface_dep,
-        bytes_dep,
-        bytes_util_dep,
-    ],
+    dependencies: aes_block_analyzer_dependencies,
     include_directories: root_include,
 )
 aes_block_analyzer_dep = declare_dependency(
-    dependencies: [
-        analyzer_interface_dep,
-        bytes_dep,
-        bytes_util_dep,
-    ],
+    dependencies: aes_block_analyzer_dependencies,
     include_directories: root_include,
     link_with: aes_block_analyzer,
 )
