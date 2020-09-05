@@ -27,6 +27,7 @@ repeating_key_xor = library(
     ),
     dependencies: [
         bytes_dep,
+        bytes_util_dep,
         hamming_distance_analyzer_dep,
         logging_dep,
         single_byte_xor_dep,
@@ -70,6 +71,7 @@ aes_ecb = library(
         'aes_ecb.cpp',
     ),
     dependencies: [
+        aes_block_analyzer_dep,
         aes_dep,
         bytes_dep,
         logging_dep,
@@ -79,7 +81,11 @@ aes_ecb = library(
 )
 aes_ecb_dep = declare_dependency(
     dependencies: [
+        aes_block_analyzer_dep,
+        aes_dep,
         bytes_dep,
+        logging_dep,
+        statusor_dep,
     ],
     include_directories: root_include,
     link_with: aes_ecb,

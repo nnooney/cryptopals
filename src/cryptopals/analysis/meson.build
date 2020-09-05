@@ -61,3 +61,25 @@ test(
     protocol: 'gtest',
     args: test_args,
 )
+
+aes_block_analyzer = library(
+    'aes_block_analyzer',
+    files(
+        'aes_block_analyzer.cpp',
+    ),
+    dependencies: [
+        analyzer_interface_dep,
+        bytes_dep,
+        bytes_util_dep,
+    ],
+    include_directories: root_include,
+)
+aes_block_analyzer_dep = declare_dependency(
+    dependencies: [
+        analyzer_interface_dep,
+        bytes_dep,
+        bytes_util_dep,
+    ],
+    include_directories: root_include,
+    link_with: aes_block_analyzer,
+)

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <span>
 
+#include "cryptopals/analysis/aes_block_analyzer.h"
 #include "cryptopals/util/aes.h"
 #include "cryptopals/util/algorithm.h"
 #include "cryptopals/util/internal/status_macros.h"
@@ -78,6 +79,11 @@ AesEcb::DecryptionResultType AesEcb::Crack(const Bytes& ciphertext) {
       .score = std::numeric_limits<double>::max()};
 
   return decryption_result;
+}
+
+double AesEcb::Detect(const Bytes& ciphertext) {
+  cryptopals::analysis::AesBlockAnalyzer aes_block_analyzer;
+  return aes_block_analyzer.AnalyzeBytes(ciphertext);
 }
 
 }  // namespace cryptopals::cipher

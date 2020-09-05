@@ -177,3 +177,26 @@ first. Good thing I have the convert_tool still!
 ./build/src/cryptopals/challenges/01/aes_ecb_tool --action DECRYPT --format base64 \
 --key WUVMTE9XIFNVQk1BUklORQ== --file src/cryptopals/challenges/01/data/7.txt
 ```
+
+### Challenge 8
+
+It is possible to detect AES in ECB mode because under the same key, the same
+plaintext block always maps to the same ciphertext block. We can use this fact
+to detect if there are any repeating patterns in the plaintext block.
+
+I created the `aes_block_analyzer` to output the number of blocks that have the
+same output. By running this analyzer against each of the encoded texts, it's
+possible to determine which one is most likely to have been encoded using AES in
+ECB mode.
+
+At this point, I'm handling multiple forms of input (stdin, a single file
+containing newline-separated ciphertext, and a file containing multiple
+ciphertexts separated by a newline). I decided to create tool helper functions
+to process these inputs and process enumerations provided at the command line.
+The result of this is that the old command lines are broken; I went ahead and
+updated the commands in the previous challenges to reflect the new arguments.
+
+```sh
+./build/src/cryptopals/challenges/01/aes_ecb_tool --action detect --format hex
+--input multi_ciphertext_file ./src/cryptopals/challenges/01/data/8.txt
+```

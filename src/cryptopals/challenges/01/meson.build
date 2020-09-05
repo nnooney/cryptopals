@@ -79,10 +79,11 @@ executable(
   dependencies: [
     absl_flags_dep,
     absl_status_dep,
+    aes_ecb_dep,
     bytes_dep,
     cryptopals_enums_dep,
     logging_dep,
-    aes_ecb_dep,
+    tool_helpers_dep,
   ],
   link_with: [
     string_utils,

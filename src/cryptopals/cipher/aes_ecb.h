@@ -22,6 +22,10 @@ class AesEcb : public SymmetricCipherInterface<cryptopals::util::Bytes> {
   // Cracks the cipher and returns the most likely decryption result for
   // `ciphertext`.
   DecryptionResultType Crack(const cryptopals::util::Bytes& ciphertext);
+
+  // Detect determines the probability (range [0-1]) that `ciphertext` was
+  // encrypted using this cipher.
+  double Detect(const cryptopals::util::Bytes& ciphertext);
 };
 
 }  // namespace cryptopals::cipher

@@ -16,9 +16,26 @@ enum TextEncodedFormat {
   ASCII = 1;
 }
 
+// The action to perform with a cipher.
 enum CipherAction {
   CIPHER_ACTION_UNSPECIFIED = 0;
   ENCRYPT = 1;
   DECRYPT = 2;
   CRACK = 3;
+  DETECT = 4;
+}
+
+// The input method to a program.
+enum InputMethod {
+  INPUT_METHOD_UNSPECIFIED = 0;
+
+  // Input is provided via stdin.
+  STDIN = 1;
+
+  // Input is a file containing a single ciphertext. Newlines are removed before
+  // processing.
+  CIPHERTEXT_FILE = 2;
+
+  // Input is a file containing multiple ciphertexts, separated by newlines.
+  MULTI_CIPHERTEXT_FILE = 3;
 }

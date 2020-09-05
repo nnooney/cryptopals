@@ -7,18 +7,21 @@
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "absl/status/status.h"
+#include "cryptopals/analysis/aes_block_analyzer.h"
 #include "cryptopals/cipher/aes_ecb.h"
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
+#include "cryptopals/util/internal/status_macros.h"
 #include "cryptopals/util/logging.h"
 #include "cryptopals/util/string_utils.h"
+#include "cryptopals/util/tool_helpers.h"
 
 ABSL_FLAG(std::string, action, "",
-          "the action to perform (encrypt, decrypt, crack)");
+          "the action to perform (encrypt, decrypt, detect, crack)");
 ABSL_FLAG(std::string, format, "", "format of the operands and output");
-ABSL_FLAG(bool, file, "",
-          "treat the input as a filepath rather than direct input");
 ABSL_FLAG(std::string, key, "", "the key used to encrypt/decrypt a message");
+ABSL_FLAG(std::string, input, "stdin",
+          "the input method (stdin, ciphertext_file, multi_ciphertext_file)");
 
 namespace {
 
@@ -61,78 +64,102 @@ absl::Status Crack(std::string_view encoded_text,
   return absl::UnimplementedError("I don't know how to crack this yet");
 }
 
+// Detects the most likely text in `encoded_texts` encrypted with the AES ECB
+// cipher.
+absl::Status Detect(const std::vector<std::string>& encoded_texts,
+                    cryptopals::BytesEncodedFormat format) {
+  std::string_view most_likely_result;
+  double high_score = std::numeric_limits<double>::min();
+
+  LOG(INFO) << "Detecting AES in ECB mode from " << encoded_texts.size()
+            << " inputs.";
+
+  cryptopals::analysis::AesBlockAnalyzer aes_block_analyzer;
+  for (std::string_view encoded_text : encoded_texts) {
+    Bytes ciphertext = Bytes::CreateFromFormat(encoded_text, format);
+    double score = aes_block_analyzer.AnalyzeBytes(ciphertext);
+
+    if (score > high_score) {
+      high_score = score;
+      most_likely_result = encoded_text;
+    }
+  }
+
+  std::cout << "Most likely result: " << most_likely_result << std::endl;
+  std::cout << "Score: " << high_score << std::endl;
+
+  return absl::OkStatus();
+}
+
 }  // namespace
 
 int main(int argc, char** argv) {
   cryptopals::util::InitLogging(argc, argv);
   absl::SetProgramUsageMessage(
-      absl::StrCat("Explores the AES ECB cipher. Possible operations "
+      absl::StrCat("Explores the AES cipher in ECB mode. Possible operations "
                    "are defined with the --action flag."));
   std::vector<char*> positional_args = absl::ParseCommandLine(argc, argv);
 
-  std::string format_flag = absl::GetFlag(FLAGS_format);
-  cryptopals::util::StrToUpper(&format_flag);
-  std::string action_flag = absl::GetFlag(FLAGS_action);
-  cryptopals::util::StrToUpper(&action_flag);
+  ASSIGN_OR_RETURN(
+      cryptopals::BytesEncodedFormat format,
+      cryptopals::util::ParseEnumFromString<cryptopals::BytesEncodedFormat>(
+          absl::GetFlag(FLAGS_format), cryptopals::BytesEncodedFormat_Parse),
+      static_cast<int>(_.code()));
 
-  cryptopals::BytesEncodedFormat format;
-  if (format_flag.empty()) {
-    LOG(ERROR) << "Missing required option: --format";
-    return static_cast<int>(absl::StatusCode::kInvalidArgument);
-  }
-  bool rc = BytesEncodedFormat_Parse(format_flag, &format);
-  if (!rc) {
-    LOG(ERROR) << "Unable to parse --format flag: " << format_flag;
-    return static_cast<int>(absl::StatusCode::kInvalidArgument);
-  }
+  ASSIGN_OR_RETURN(
+      cryptopals::CipherAction action,
+      cryptopals::util::ParseEnumFromString<cryptopals::CipherAction>(
+          absl::GetFlag(FLAGS_action), cryptopals::CipherAction_Parse),
+      static_cast<int>(_.code()));
 
-  cryptopals::CipherAction action;
-  if (action_flag.empty()) {
-    LOG(ERROR) << "Missing required option: --action";
-    return static_cast<int>(absl::StatusCode::kInvalidArgument);
-  }
-  rc = CipherAction_Parse(action_flag, &action);
-  if (!rc) {
-    LOG(ERROR) << "Unable to parse --action flag: " << action_flag;
-    return static_cast<int>(absl::StatusCode::kInvalidArgument);
-  }
+  ASSIGN_OR_RETURN(
+      cryptopals::InputMethod input,
+      cryptopals::util::ParseEnumFromString<cryptopals::InputMethod>(
+          absl::GetFlag(FLAGS_input), cryptopals::InputMethod_Parse),
+      static_cast<int>(_.code()));
 
   if (positional_args.size() < 2) {
     LOG(ERROR) << "Expected at least one positional argument";
     return static_cast<int>(absl::StatusCode::kInvalidArgument);
   }
 
-  std::string input_text;
-  if (absl::GetFlag(FLAGS_file)) {
-    std::ifstream file_stream(positional_args.at(1));
-    std::ostringstream file_contents;
-    file_contents << file_stream.rdbuf();
-    input_text = file_contents.str();
-    input_text.erase(std::remove(input_text.begin(), input_text.end(), '\n'),
-                     input_text.end());
-  } else {
-    input_text = positional_args.at(1);
-  }
+  std::vector<std::string> inputs = cryptopals::util::GetInputsForMethod(
+      std::vector<char*>(positional_args.begin() + 1, positional_args.end()),
+      input);
 
   switch (action) {
     case cryptopals::CipherAction::ENCRYPT: {
-      absl::Status status = Encrypt(input_text, format);
-      if (!status.ok()) {
-        LOG(ERROR) << status;
-        return static_cast<int>(status.code());
+      for (std::string input : inputs) {
+        absl::Status status = Encrypt(input, format);
+        if (!status.ok()) {
+          LOG(ERROR) << status;
+          return static_cast<int>(status.code());
+        }
       }
       break;
     }
     case cryptopals::CipherAction::DECRYPT: {
-      absl::Status status = Decrypt(input_text, format);
-      if (!status.ok()) {
-        LOG(ERROR) << status;
-        return static_cast<int>(status.code());
+      for (std::string input : inputs) {
+        absl::Status status = Decrypt(input, format);
+        if (!status.ok()) {
+          LOG(ERROR) << status;
+          return static_cast<int>(status.code());
+        }
       }
       break;
     }
     case cryptopals::CipherAction::CRACK: {
-      absl::Status status = Crack(input_text, format);
+      for (std::string input : inputs) {
+        absl::Status status = Crack(input, format);
+        if (!status.ok()) {
+          LOG(ERROR) << status;
+          return static_cast<int>(status.code());
+        }
+      }
+      break;
+    }
+    case cryptopals::CipherAction::DETECT: {
+      absl::Status status = Detect(inputs, format);
       if (!status.ok()) {
         LOG(ERROR) << status;
         return static_cast<int>(status.code());

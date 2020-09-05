@@ -10,6 +10,7 @@
 #include "cryptopals/cipher/decryption_result.h"
 #include "cryptopals/cipher/single_byte_xor.h"
 #include "cryptopals/encoding/ascii.h"
+#include "cryptopals/util/bytes_util.h"
 #include "cryptopals/util/logging.h"
 
 namespace cryptopals::cipher {
@@ -22,53 +23,6 @@ constexpr size_t CONFIG_KEYSIZE_LIMIT = 40;
 
 // The number of key sizes to attempt to decrypt with.
 constexpr size_t CONFIG_KEYSIZE_ATTEMPTS = 4;
-
-// Splits `input` into a vector of bytes, each of length `n`. For example,
-// SplitBytes("ABCDEFGHIJ", 4) returns {"ABCD", "EFGH", "IJ"}.
-std::vector<Bytes> SplitBytes(const Bytes& input, size_t n) {
-  std::vector<Bytes> result;
-
-  for (int i = 0; i < input.size(); i += n) {
-    auto last = std::min(input.size(), i + n);
-    result.emplace_back(input.begin() + i, input.begin() + last);
-  }
-
-  return result;
-}
-
-// Splits `input` into a vector of bytes, where each new bytes object contains
-// every `n`th byte. For example, SplitAndTransposeBytes("ABCDEFGHIJ", 4)
-// returns {"AEI", "BFJ", "CG", "DH"}.
-std::vector<Bytes> SplitAndTransposeBytes(const Bytes& input, size_t n) {
-  std::vector<Bytes> result(n);
-
-  for (int i = 0; i < input.size(); i += n) {
-    for (int j = 0; j < n; j++) {
-      if (i + j >= input.size()) {
-        break;
-      }
-      result[j].push_back(input.at(i + j));
-    }
-  }
-
-  return result;
-}
-
-// Performs the reverse operation of SplitAndTransposeBytes. Note that this
-// algorithm assumes that the first element of the vector is the longest.
-Bytes JoinAndTransposeBytes(const std::vector<Bytes>& input) {
-  Bytes result;
-
-  for (int i = 0; i < input.at(0).size(); ++i) {
-    for (int j = 0; j < input.size(); ++j) {
-      if (i >= input.at(j).size()) {
-        break;
-      }
-      result.push_back(input.at(j).at(i));
-    }
-  }
-  return result;
-}
 
 struct KeysizeResult {
   double score;
