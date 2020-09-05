@@ -175,7 +175,7 @@ first. Good thing I have the convert_tool still!
 ```sh
 ./build/src/cryptopals/challenges/01/convert_tool --from raw --to base64 "YELLOW SUBMARINE"
 ./build/src/cryptopals/challenges/01/aes_ecb_tool --action DECRYPT --format base64 \
---key WUVMTE9XIFNVQk1BUklORQ== --file src/cryptopals/challenges/01/data/7.txt
+--key WUVMTE9XIFNVQk1BUklORQ== --input ciphertext_file src/cryptopals/challenges/01/data/7.txt
 ```
 
 ### Challenge 8
