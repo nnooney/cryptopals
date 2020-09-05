@@ -150,7 +150,7 @@ length.
 
 ```sh
 ./build/src/cryptopals/challenges/01/repeating_key_xor_tool --action crack --format base64 \
---file src/cryptopals/challenges/01/data/6.txt --logtostderr
+--input ciphertext_file src/cryptopals/challenges/01/data/6.txt --logtostderr
 ```
 
 ### Challenge 7
@@ -197,6 +197,6 @@ The result of this is that the old command lines are broken; I went ahead and
 updated the commands in the previous challenges to reflect the new arguments.
 
 ```sh
-./build/src/cryptopals/challenges/01/aes_ecb_tool --action detect --format hex
+./build/src/cryptopals/challenges/01/aes_ecb_tool --action detect --format hex \
 --input multi_ciphertext_file ./src/cryptopals/challenges/01/data/8.txt
 ```

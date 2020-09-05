@@ -11,9 +11,9 @@
 #include "cryptopals/cipher/aes_ecb.h"
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
+#include "cryptopals/util/init_cryptopals.h"
 #include "cryptopals/util/internal/status_macros.h"
 #include "cryptopals/util/logging.h"
-#include "cryptopals/util/string_utils.h"
 #include "cryptopals/util/tool_helpers.h"
 
 ABSL_FLAG(std::string, action, "",
@@ -94,10 +94,10 @@ absl::Status Detect(const std::vector<std::string>& encoded_texts,
 }  // namespace
 
 int main(int argc, char** argv) {
-  cryptopals::util::InitLogging(argc, argv);
-  absl::SetProgramUsageMessage(
-      absl::StrCat("Explores the AES cipher in ECB mode. Possible operations "
-                   "are defined with the --action flag."));
+  cryptopals::util::InitCryptopals(
+      "Explores the AES cipher in ECB mode. Possible operations are defined "
+      "with the --action flag.",
+      argc, argv);
   std::vector<char*> positional_args = absl::ParseCommandLine(argc, argv);
 
   ASSIGN_OR_RETURN(

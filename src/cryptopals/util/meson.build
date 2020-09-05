@@ -52,6 +52,13 @@ statusor_dep = declare_dependency(
     link_with: statusor,
 )
 
+status_macros_dep = declare_dependency(
+    dependencies: [
+        status_builder_dep,
+        statusor_dep,
+    ],
+)
+
 bytes_dependencies = [
     cryptopals_enums_dep,
 ]
@@ -171,4 +178,22 @@ tool_helpers_dep = declare_dependency(
     dependencies: tool_helpers_dependencies,
     include_directories: root_include,
     link_with: tool_helpers,
+)
+
+init_cryptopals_dependencies = [
+    absl_flags_dep,
+    logging_dep,
+]
+init_cryptopals = library(
+    'init_cryptopals',
+    files(
+        'init_cryptopals.cpp',
+    ),
+    dependencies: init_cryptopals_dependencies,
+    include_directories: root_include,
+)
+init_cryptopals_dep = declare_dependency(
+    dependencies: init_cryptopals_dependencies,
+    include_directories: root_include,
+    link_with: init_cryptopals,
 )
