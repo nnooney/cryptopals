@@ -12,7 +12,7 @@
 #include <span>
 
 #include "cryptopals/util/bytes.h"
-#include "cryptopals/util/internal/statusor.h"
+#include "cryptopals/util/internal/status/statusor.h"
 
 namespace cryptopals::util {
 

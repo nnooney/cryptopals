@@ -10,7 +10,7 @@ This project uses the [Meson](https://mesonbuild.com/) build system. To build
 the code, use the following commands:
 
 ``` shell
-meson setup build/ -Demilk-loguru:loguru_replace_glog=true
+meson setup build/
 ninja -C build/ all
 ```
 

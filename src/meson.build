@@ -17,10 +17,6 @@ absl_synchronization_dep = absl_proj.get_variable('absl_synchronization_dep')
 absl_time_dep = absl_proj.get_variable('absl_time_dep')
 absl_types_dep = absl_proj.get_variable('absl_types_dep')
 
-# Include Loguru dependency.
-emilk_loguru_proj = subproject('emilk-loguru')
-emilk_loguru_dep = emilk_loguru_proj.get_variable('emilk_loguru_dep')
-
 # Include Protobuf dependency.
 protobuf_proj = subproject('protobuf')
 protobuf_dep = protobuf_proj.get_variable('protobuf_dep')
@@ -29,7 +25,7 @@ protoc = protobuf_proj.get_variable('protoc')
 protoc_generator = generator(
     protoc,
     output: ['@BASENAME@.pb.cc', '@BASENAME@.pb.h'],
-    arguments: ['--cpp_out', '@BUILD_DIR@', '-I@CURRENT_SOURCE_DIR@', '@PLAINNAME@']
+    arguments: ['--cpp_out', '@BUILD_DIR@', '-I@CURRENT_SOURCE_DIR@', '@INPUT@']
 )
 
 # Include GoogleTest for all test code.

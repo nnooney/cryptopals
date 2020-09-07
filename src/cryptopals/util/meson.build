@@ -1,62 +1,9 @@
-logging_dependencies = [
-    absl_flags_dep,
-    emilk_loguru_dep,
-]
-logging = library(
-    'logging',
-    files(
-        'logging.cpp',
-    ),
-    dependencies: logging_dependencies,
-    include_directories: root_include,
-)
-logging_dep = declare_dependency(
-    dependencies: logging_dependencies,
-    include_directories: root_include,
-    link_with: logging,
-)
+subdir('internal')
 
-status_builder_dependencies = [
-    absl_status_dep,
-]
-status_builder = library(
-    'status_builder',
-    files(
-        'internal/status_builder.cpp',
-    ),
-    dependencies: status_builder_dependencies,
-    include_directories: root_include,
-)
-status_builder_dep = declare_dependency(
-    dependencies: status_builder_dependencies,
-    include_directories: root_include,
-    link_with: status_builder,
-)
-
-statusor_dependencies = [
-    absl_status_dep,
-    logging_dep,
-    status_builder_dep,
-]
-statusor = library(
-    'statusor',
-    files(
-        'internal/statusor.cpp',
-    ),
-    dependencies: statusor_dependencies,
-    include_directories: root_include,
-)
-statusor_dep = declare_dependency(
-    dependencies: statusor_dependencies,
-    include_directories: root_include,
-    link_with: statusor,
-)
-
-status_macros_dep = declare_dependency(
+cryptopals_logging_dep = declare_dependency(
     dependencies: [
-        status_builder_dep,
-        statusor_dep,
-    ],
+        logging_dep,
+    ]
 )
 
 bytes_dependencies = [
@@ -127,6 +74,7 @@ aes_dependencies = [
     absl_status_dep,
     absl_strings_dep,
     bytes_dep,
+    status_builder_dep,
     statusor_dep,
 ]
 aes = library(
@@ -150,6 +98,7 @@ aes_test = executable(
     dependencies: [
         aes_dep,
         gmock_main_dep,
+        matchers_dep,
     ],
     include_directories: root_include,
 )
@@ -162,7 +111,7 @@ test(
 
 tool_helpers_dependencies = [
     cryptopals_enums_dep,
-    logging_dep,
+    cryptopals_logging_dep,
     statusor_dep,
     string_utils_dep,
 ]
@@ -182,7 +131,7 @@ tool_helpers_dep = declare_dependency(
 
 init_cryptopals_dependencies = [
     absl_flags_dep,
-    logging_dep,
+    cryptopals_logging_dep,
 ]
 init_cryptopals = library(
     'init_cryptopals',

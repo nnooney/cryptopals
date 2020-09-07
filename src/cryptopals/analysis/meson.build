@@ -1,6 +1,6 @@
 analyzer_interface_dependencies = [
     bytes_dep,
-    logging_dep,
+    cryptopals_logging_dep,
 ]
 analyzer_interface = library(
     'analyzer_interface',
@@ -59,6 +59,7 @@ test(
 )
 
 aes_block_analyzer_dependencies = [
+    aes_dep,
     analyzer_interface_dep,
     bytes_dep,
     bytes_util_dep,

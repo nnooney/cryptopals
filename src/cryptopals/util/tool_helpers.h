@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "cryptopals/proto/cryptopals_enums.pb.h"
-#include "cryptopals/util/internal/statusor.h"
+#include "cryptopals/util/internal/status/statusor.h"
 #include "cryptopals/util/string_utils.h"
 
 namespace cryptopals::util {

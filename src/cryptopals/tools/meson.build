@@ -9,7 +9,8 @@ executable(
         absl_strings_dep,
         ascii_dep,
         bytes_dep,
-        logging_dep,
+        cryptopals_logging_dep,
+        init_cryptopals_dep,
     ],
     include_directories: root_include,
 )

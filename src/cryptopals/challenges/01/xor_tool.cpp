@@ -8,8 +8,9 @@
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/init_cryptopals.h"
-#include "cryptopals/util/internal/status_macros.h"
+#include "cryptopals/util/internal/status/status_macros.h"
 #include "cryptopals/util/logging.h"
+#include "cryptopals/util/status_adaptors.h"
 #include "cryptopals/util/tool_helpers.h"
 
 ABSL_FLAG(std::string, format, "", "format of the operands and output");
@@ -26,7 +27,7 @@ int main(int argc, char** argv) {
       cryptopals::BytesEncodedFormat format,
       cryptopals::util::ParseEnumFromString<cryptopals::BytesEncodedFormat>(
           absl::GetFlag(FLAGS_format), cryptopals::BytesEncodedFormat_Parse),
-      static_cast<int>(_.code()));
+      _.LogError().With(cryptopals::util::Return(EXIT_FAILURE)));
 
   if (positional_args.size() < 2) {
     LOG(ERROR) << "Expected at least one positional argument";

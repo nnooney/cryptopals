@@ -21,7 +21,7 @@ repeating_key_xor_dependencies = [
     bytes_dep,
     bytes_util_dep,
     hamming_distance_analyzer_dep,
-    logging_dep,
+    cryptopals_logging_dep,
     single_byte_xor_dep,
 ]
 repeating_key_xor = library(
@@ -60,7 +60,7 @@ aes_ecb_dependencies = [
     aes_block_analyzer_dep,
     aes_dep,
     bytes_dep,
-    logging_dep,
+    cryptopals_logging_dep,
     statusor_dep,
 ]
 aes_ecb = library(

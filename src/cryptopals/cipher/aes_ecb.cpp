@@ -9,8 +9,8 @@
 #include "cryptopals/analysis/aes_block_analyzer.h"
 #include "cryptopals/util/aes.h"
 #include "cryptopals/util/algorithm.h"
-#include "cryptopals/util/internal/status_macros.h"
-#include "cryptopals/util/internal/statusor.h"
+#include "cryptopals/util/internal/status/status_macros.h"
+#include "cryptopals/util/internal/status/statusor.h"
 #include "cryptopals/util/logging.h"
 
 namespace cryptopals::cipher {

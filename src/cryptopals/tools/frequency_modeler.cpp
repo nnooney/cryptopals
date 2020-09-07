@@ -12,8 +12,7 @@
 #include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/algorithm.h"
 #include "cryptopals/util/bytes.h"
-#include "cryptopals/util/logging.h"
-#include "cryptopals/util/string_utils.h"
+#include "cryptopals/util/init_cryptopals.h"
 
 using cryptopals::encoding::AsciiEncoding;
 using cryptopals::util::Bytes;
@@ -23,11 +22,11 @@ ABSL_FLAG(std::string, filemap, "",
           "per line");
 
 int main(int argc, char** argv) {
-  cryptopals::util::InitLogging(argc, argv);
-  absl::SetProgramUsageMessage(
+  cryptopals::util::InitCryptopals(
       "Reads a series of input files and generates a frequency of each code "
       "point in the file. The input files can be specified as positional "
-      "arguments on the command line or in a file map (see --filemap)");
+      "arguments on the command line or in a file map (see --filemap)",
+      argc, argv);
   std::vector<char*> positional_args = absl::ParseCommandLine(argc, argv);
 
   std::string filemap_flag = absl::GetFlag(FLAGS_filemap);

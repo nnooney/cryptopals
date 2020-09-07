@@ -1,54 +1,52 @@
-// This is a modified version of the iree file
-// iree/base/internal/source_location.h obtained from
-// https://github.com/google/iree. Modifications are made to make
-// this class compatible with absl::Status and to simplify namespaces.
+// This is a modified version of the xls file xls/common/source_location.h
+// obtained from https://github.com/google/xls. Modifications are made to make
+// this class compatible with Abseil and to simplify namespaces.
 
-// Copyright 2019 Google LLC
+// Copyright 2020 Google LLC
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//      https://www.apache.org/licenses/LICENSE-2.0
+//      http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
+//
 // API for capturing source-code location information.
 // Based on http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4519.pdf.
 //
 // To define a function that has access to the source location of the
 // callsite, define it with a parameter of type `absl::SourceLocation`. The
 // caller can then invoke the function, passing `ABSL_LOC` as the argument.
+//
+// If at all possible, make the `absl::SourceLocation` parameter be the
+// function's last parameter. That way, when `std::source_location` is
+// available, you will be able to switch to it, and give the parameter a default
+// argument of `std::source_location::current()`. Users will then be able to
+// omit that argument, and the default will automatically capture the location
+// of the callsite.
 
 #ifndef CRYPTOPALS_UTIL_INTERNAL_SOURCE_LOCATION_H_
 #define CRYPTOPALS_UTIL_INTERNAL_SOURCE_LOCATION_H_
 
 #include <cstdint>
 
-#if defined(__is_identifier)
-#define ABSL_INTERNAL_HAS_KEYWORD(x) !(__is_identifier(x))
-#else
-#define ABSL_INTERNAL_HAS_KEYWORD(x) 0
-#endif
+#include "absl/base/config.h"
 
-#if !defined(ABSL_INTERNAL_HAVE_SOURCE_LOCATION_CURRENT)
-#if ABSL_INTERNAL_HAS_KEYWORD(__builtin_LINE) && \
-    ABSL_INTERNAL_HAS_KEYWORD(__builtin_FILE)
-#define ABSL_INTERNAL_HAVE_SOURCE_LOCATION_CURRENT 1
-#else
-#define ABSL_INTERNAL_HAVE_SOURCE_LOCATION_CURRENT 0
-#endif
-#endif
+#define ABSL_HAVE_SOURCE_LOCATION_CURRENT 1
 
-#undef ABSL_INTERNAL_HAS_KEYWORD
-
+// The absl namespace has types that are anticipated to become available in
+// Abseil reasonably soon, at which point they can be removed. These types are
+// not in the xls namespace to make it easier to search/replace migrate usages
+// to Abseil in the future.
 namespace absl {
 
 // Class representing a specific location in the source code of a program.
+// `absl::SourceLocation` is copyable.
 class SourceLocation {
   struct PrivateTag {
    private:
@@ -67,12 +65,24 @@ class SourceLocation {
     return SourceLocation(line, file_name);
   }
 
-#if ABSL_INTERNAL_HAVE_SOURCE_LOCATION_CURRENT
+#ifdef ABSL_HAVE_SOURCE_LOCATION_CURRENT
   // SourceLocation::current
   //
   // Creates a `SourceLocation` based on the current line and file.  APIs that
   // accept a `SourceLocation` as a default parameter can use this to capture
   // their caller's locations.
+  //
+  // Example:
+  //
+  //   void TracedAdd(int i, SourceLocation loc = SourceLocation::current()) {
+  //     std::cout << loc.file_name() << ":" << loc.line() << " added " << i;
+  //     ...
+  //   }
+  //
+  //   void UserCode() {
+  //     TracedAdd(1);
+  //     TracedAdd(2);
+  //   }
   static constexpr SourceLocation current(
       PrivateTag = PrivateTag{}, std::uint_least32_t line = __builtin_LINE(),
       const char* file_name = __builtin_FILE()) {
@@ -135,7 +145,7 @@ class SourceLocation {
 //     std::cout << loc.file_name() << "@" << loc.line() << ": " << msg;
 //   }
 //
-#if ABSL_INTERNAL_HAVE_SOURCE_LOCATION_CURRENT
+#if ABSL_HAVE_SOURCE_LOCATION_CURRENT
 #define ABSL_LOC_CURRENT_DEFAULT_ARG = ::absl::SourceLocation::current()
 #else
 #define ABSL_LOC_CURRENT_DEFAULT_ARG
