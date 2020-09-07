@@ -1,5 +1,6 @@
 #include "cryptopals/util/init_cryptopals.h"
 
+#include <filesystem>
 #include <fstream>
 #include <string_view>
 
@@ -22,10 +23,11 @@ class FileLogSink : public absl::LogSink {
   }
 
   void Send(const absl::LogEntry& entry) override {
-    output << entry.ToString();
+    output << absl::StrCat(entry.ToString(), "\n");
+    output.flush();
   }
 
-  bool Ok() const { return output.good(); }
+  bool ok() const { return output.good(); }
 
  private:
   std::ofstream output;
@@ -48,9 +50,14 @@ void InitLogging(int argc, char** argv) {
         absl::StrJoin({"/tmp", logfile_name.c_str()}, "/");
 
     sink = new FileLogSink(logfile_path);
-    CHECK(sink->Ok()) << "Failed to create log sink";
+    CHECK(sink->ok()) << "Failed to create log sink";
     absl::AddLogSink(sink);
   }
+
+  // Log useful program information.
+  LOG(INFO) << "Command Line: "
+            << absl::StrJoin(std::vector<char*>{argv, argv + argc}, " ");
+  LOG(INFO) << "Current Directory: " << std::filesystem::current_path();
 }
 
 }  // namespace
@@ -59,9 +66,6 @@ void InitCryptopals(std::string_view usage, int argc, char** argv) {
   absl::SetProgramUsageMessage(usage);
   absl::ParseCommandLine(argc, argv);
   InitLogging(argc, argv);
-
-  // Log the command line flags.
-  LOG(INFO) << absl::StrJoin(std::vector<char*>{argv, argv + argc}, " ");
 }
 
 }  // namespace cryptopals::util
