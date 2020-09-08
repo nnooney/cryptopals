@@ -200,3 +200,17 @@ updated the commands in the previous challenges to reflect the new arguments.
 ./build/src/cryptopals/challenges/01/aes_ecb_tool --action detect --format hex \
 --input multi_ciphertext_file ./src/cryptopals/challenges/01/data/8.txt
 ```
+
+## Set 2
+
+### Challenge 9
+
+Implementing PKCS#7 padding is straightforward. The number of padding bytes, and
+the value of those padding bytes is `block_size - (input_size % block_size)`.
+This will result in a full block of padding if the input is a multiple of the
+block size. Also, using `uint8_t` as the type for block size ensures that we
+don't request too many bytes of padding.
+
+To remove the padding, I used `std::all_of` with a lambda expression to check
+that the bytes input matches the expected value. With a few unit tests, I got
+this code up and running.
