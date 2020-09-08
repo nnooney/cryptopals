@@ -18,7 +18,6 @@ namespace {
 
 using cryptopals::util::AesState;
 using cryptopals::util::Bytes;
-using cryptopals::util::FloorMultiple;
 
 }  // namespace
 

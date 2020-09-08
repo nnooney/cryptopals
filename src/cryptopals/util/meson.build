@@ -146,3 +146,41 @@ init_cryptopals_dep = declare_dependency(
     include_directories: root_include,
     link_with: init_cryptopals,
 )
+
+padding_dependencies = [
+    absl_status_dep,
+    bytes_dep,
+    cryptopals_logging_dep,
+]
+padding = library(
+    'padding',
+    files(
+        'padding.cpp',
+    ),
+    dependencies: padding_dependencies,
+    include_directories: root_include,
+)
+padding_dep = declare_dependency(
+    dependencies: padding_dependencies,
+    include_directories: root_include,
+    link_with: padding,
+)
+
+padding_test = executable(
+    'padding_test',
+    files(
+        'padding_test.cpp',
+    ),
+    dependencies: [
+        gtest_main_dep,
+        matchers_dep,
+        padding_dep,
+    ],
+    include_directories: root_include,
+)
+test(
+    'padding_test',
+    padding_test,
+    protocol: 'gtest',
+    args: test_args,
+)

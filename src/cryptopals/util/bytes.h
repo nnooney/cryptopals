@@ -61,6 +61,9 @@ class Bytes {
     data_.insert(data_.end(), other.begin(), other.end());
   }
 
+  // Resizes the Bytes object to `count` bytes.
+  inline void Resize(size_t count) { data_.resize(count); }
+
   // Sets the `format` of the Bytes object for printing.
   inline void SetFormat(cryptopals::BytesEncodedFormat format) {
     format_ = format;
@@ -107,12 +110,18 @@ class Bytes {
   inline data_type::iterator end() { return data_.end(); }
   inline data_type::const_iterator end() const { return data_.end(); }
   inline data_type::size_type size() const noexcept { return data_.size(); }
+
+  inline data_type::reference front() { return data_.front(); }
+  inline data_type::const_reference front() const { return data_.front(); }
+  inline data_type::reference back() { return data_.back(); }
+  inline data_type::const_reference back() const { return data_.back(); }
   inline data_type::reference at(data_type::size_type pos) {
     return data_.at(pos);
   }
   inline data_type::const_reference at(data_type::size_type pos) const {
     return data_.at(pos);
   }
+
   inline void push_back(data_type::const_reference value) {
     data_.push_back(value);
   }
