@@ -4,13 +4,13 @@
 #include <fstream>
 #include <string_view>
 
+#include "absl/base/module_initializer.h"
 #include "absl/flags/flag.h"
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
+#include "absl/logging/log_flags.h"
 #include "absl/strings/str_join.h"
 #include "absl/time/time.h"
-#include "cryptopals/util/internal/logging/log_flags.h"
-#include "cryptopals/util/internal/module_initializer.h"
 #include "cryptopals/util/logging.h"
 
 namespace cryptopals::util {

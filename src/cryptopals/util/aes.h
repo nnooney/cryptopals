@@ -11,8 +11,8 @@
 #include <cstdint>
 #include <span>
 
+#include "absl/status/statusor.h"
 #include "cryptopals/util/bytes.h"
-#include "cryptopals/util/internal/status/statusor.h"
 
 namespace cryptopals::util {
 

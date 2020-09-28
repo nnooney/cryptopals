@@ -7,15 +7,15 @@
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "absl/status/status.h"
+#include "absl/status/status_macros.h"
 #include "cryptopals/analysis/aes_block_analyzer.h"
 #include "cryptopals/cipher/aes_ecb.h"
-#include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/init_cryptopals.h"
-#include "cryptopals/util/internal/status/status_macros.h"
 #include "cryptopals/util/logging.h"
 #include "cryptopals/util/status_adaptors.h"
 #include "cryptopals/util/tool_helpers.h"
+#include "cryptopals_enums.pb.h"
 
 ABSL_FLAG(std::string, action, "",
           "the action to perform (encrypt, decrypt, detect, crack)");

@@ -5,6 +5,6 @@
 #ifndef CRYPTOPALS_UTIL_LOGGING_H_
 #define CRYPTOPALS_UTIL_LOGGING_H_
 
-#include "cryptopals/util/internal/logging/logging.h"
+#include "absl/logging/logging.h"
 
 #endif  // CRYPTOPALS_UTIL_LOGGING_H_

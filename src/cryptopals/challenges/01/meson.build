@@ -10,8 +10,8 @@ executable(
         cryptopals_enums_dep,
         init_cryptopals_dep,
         cryptopals_logging_dep,
-        status_builder_dep,
-        status_macros_dep,
+        gl_absl_status_dep,
+        absl_strings_dep,
         tool_helpers_dep,
     ],
 )
@@ -28,7 +28,8 @@ executable(
         cryptopals_enums_dep,
         init_cryptopals_dep,
         cryptopals_logging_dep,
-        status_macros_dep,
+        gl_absl_status_dep,
+        absl_strings_dep,
         tool_helpers_dep,
     ],
 )
@@ -41,13 +42,12 @@ executable(
     include_directories: root_include,
     dependencies: [
         absl_flags_dep,
-        absl_status_dep,
+        gl_absl_status_dep,
         bytes_dep,
         cryptopals_enums_dep,
         init_cryptopals_dep,
         cryptopals_logging_dep,
         single_byte_xor_dep,
-        status_macros_dep,
         tool_helpers_dep,
     ],
 )
@@ -60,13 +60,13 @@ executable(
     include_directories: root_include,
     dependencies: [
         absl_flags_dep,
-        absl_status_dep,
+        gl_absl_status_dep,
         bytes_dep,
         cryptopals_enums_dep,
         init_cryptopals_dep,
         cryptopals_logging_dep,
         repeating_key_xor_dep,
-        status_macros_dep,
+        gl_absl_status_dep,
         tool_helpers_dep,
     ],
 )
@@ -79,13 +79,13 @@ executable(
     include_directories: root_include,
     dependencies: [
         absl_flags_dep,
-        absl_status_dep,
+        gl_absl_status_dep,
         aes_ecb_dep,
         bytes_dep,
         cryptopals_enums_dep,
         init_cryptopals_dep,
         cryptopals_logging_dep,
-        status_macros_dep,
+        gl_absl_status_dep,
         tool_helpers_dep,
     ],
 )

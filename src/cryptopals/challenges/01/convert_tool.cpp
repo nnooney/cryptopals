@@ -5,13 +5,14 @@
 #include "absl/flags/parse.h"
 #include "absl/flags/usage.h"
 #include "absl/status/status.h"
-#include "cryptopals/proto/cryptopals_enums.pb.h"
+#include "absl/status/status_macros.h"
+#include "absl/strings/str_cat.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/init_cryptopals.h"
-#include "cryptopals/util/internal/status/status_macros.h"
 #include "cryptopals/util/logging.h"
 #include "cryptopals/util/status_adaptors.h"
 #include "cryptopals/util/tool_helpers.h"
+#include "cryptopals_enums.pb.h"
 
 ABSL_FLAG(std::string, from, "", "format of input(s)");
 ABSL_FLAG(std::string, to, "", "format of output(s)");

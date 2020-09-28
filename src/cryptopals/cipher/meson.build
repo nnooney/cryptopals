@@ -61,7 +61,7 @@ aes_ecb_dependencies = [
     aes_dep,
     bytes_dep,
     cryptopals_logging_dep,
-    statusor_dep,
+    gl_absl_status_dep,
 ]
 aes_ecb = library(
     'aes_ecb',

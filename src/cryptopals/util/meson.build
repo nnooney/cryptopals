@@ -1,8 +1,6 @@
-subdir('internal')
-
 cryptopals_logging_dep = declare_dependency(
     dependencies: [
-        logging_dep,
+        gl_absl_logging_dep,
     ]
 )
 
@@ -71,11 +69,11 @@ string_utils_dep = declare_dependency(
 )
 
 aes_dependencies = [
-    absl_status_dep,
+    gl_absl_status_dep,
     absl_strings_dep,
     bytes_dep,
-    status_builder_dep,
-    statusor_dep,
+    gl_absl_status_dep,
+    gl_absl_status_dep,
 ]
 aes = library(
     'aes',
@@ -98,7 +96,7 @@ aes_test = executable(
     dependencies: [
         aes_dep,
         gmock_main_dep,
-        matchers_dep,
+        gl_gtest_dep,
     ],
     include_directories: root_include,
 )
@@ -112,7 +110,7 @@ test(
 tool_helpers_dependencies = [
     cryptopals_enums_dep,
     cryptopals_logging_dep,
-    statusor_dep,
+    gl_absl_status_dep,
     string_utils_dep,
 ]
 tool_helpers = library(
@@ -148,7 +146,7 @@ init_cryptopals_dep = declare_dependency(
 )
 
 padding_dependencies = [
-    absl_status_dep,
+    gl_absl_status_dep,
     bytes_dep,
     cryptopals_logging_dep,
 ]
@@ -173,7 +171,7 @@ padding_test = executable(
     ),
     dependencies: [
         gtest_main_dep,
-        matchers_dep,
+        gl_gtest_dep,
         padding_dep,
     ],
     include_directories: root_include,

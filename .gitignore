@@ -4,6 +4,7 @@ build/
 # Don't save any subprojects except for their wrap file
 subprojects/*
 !subprojects/*.wrap
+!subprojects/packagefiles
 
 # Ignore VSCode configuration settings
 .vscode/

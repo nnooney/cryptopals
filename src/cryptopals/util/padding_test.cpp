@@ -1,6 +1,6 @@
 #include "cryptopals/util/padding.h"
 
-#include "cryptopals/util/internal/status/matchers.h"
+#include "googletest/status_matchers.h"
 #include "gtest/gtest.h"
 
 namespace cryptopals::util {

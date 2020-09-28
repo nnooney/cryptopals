@@ -5,9 +5,9 @@
 #include <functional>
 
 #include "absl/status/status.h"
+#include "absl/status/status_macros.h"
+#include "absl/status/statusor.h"
 #include "absl/strings/str_cat.h"
-#include "cryptopals/util/internal/status/status_macros.h"
-#include "cryptopals/util/internal/status/statusor.h"
 #include "cryptopals/util/logging.h"
 
 namespace cryptopals::util {

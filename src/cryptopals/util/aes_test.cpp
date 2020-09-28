@@ -3,8 +3,8 @@
 #include <algorithm>
 
 #include "cryptopals/util/bytes.h"
-#include "cryptopals/util/internal/status/matchers.h"
 #include "gmock/gmock.h"
+#include "googletest/status_matchers.h"
 #include "gtest/gtest.h"
 
 namespace cryptopals::util {
