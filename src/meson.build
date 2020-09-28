@@ -34,5 +34,11 @@ protoc_generator = generator(
         '@INPUT@'
     ],
 )
+protoc_command = [
+    protoc,
+    '--proto_path=@CURRENT_SOURCE_DIR@',
+    '--cpp_out=@OUTDIR@',
+    '@INPUT@'
+]
 
 subdir('cryptopals')

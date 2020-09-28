@@ -7,7 +7,7 @@
 #include <type_traits>
 #include <vector>
 
-#include "cryptopals_enums.pb.h"
+#include "cryptopals/proto/cryptopals_enums.pb.h"
 
 namespace cryptopals::util {
 

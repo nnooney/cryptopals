@@ -12,12 +12,12 @@
 #include "cryptopals/cipher/decryption_result.h"
 #include "cryptopals/cipher/single_byte_xor.h"
 #include "cryptopals/encoding/ascii.h"
+#include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/init_cryptopals.h"
 #include "cryptopals/util/logging.h"
 #include "cryptopals/util/status_adaptors.h"
 #include "cryptopals/util/tool_helpers.h"
-#include "cryptopals_enums.pb.h"
 
 ABSL_FLAG(std::string, action, "",
           "the action to perform (encrypt, decrypt, crack)");

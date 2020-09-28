@@ -9,10 +9,10 @@
 #include "absl/flags/usage.h"
 #include "absl/strings/str_split.h"
 #include "cryptopals/encoding/ascii.h"
+#include "cryptopals/proto/cryptopals_enums.pb.h"
 #include "cryptopals/util/algorithm.h"
 #include "cryptopals/util/bytes.h"
 #include "cryptopals/util/init_cryptopals.h"
-#include "cryptopals_enums.pb.h"
 
 using cryptopals::encoding::AsciiEncoding;
 using cryptopals::util::Bytes;
