@@ -1,6 +1,6 @@
 # The version number tracks the latest set/challenge solved.
 project('cryptopals', 'cpp',
-    version: '0.2.9',
+    version: '0.2.10',
     default_options: ['cpp_std=c++2a']
 )
 

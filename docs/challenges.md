@@ -214,3 +214,19 @@ don't request too many bytes of padding.
 To remove the padding, I used `std::all_of` with a lambda expression to check
 that the bytes input matches the expected value. With a few unit tests, I got
 this code up and running.
+
+### Challenge 10
+
+Implementing CBC mode required introducing the `Initialization Vector` to the
+existing AES utilities. I chose to make it a stateful variable on the `AesCbc`
+class so that I could preserve the encrypt/decrypt interface; unfortunately that
+means two calls are required to encrypt/decrypt.
+
+The `AesCbc` cipher and the `aes_ecb_tool` are very similar to their ECB
+counterparts.
+
+```sh
+./build/src/cryptopals/challenges/02/aes_cbc_tool --action decrypt --format base64 \
+--input ciphertext_file --key WUVMTE9XIFNVQk1BUklORQ== --iv AAAAAAAAAAAAAAAAAAAAAA== \
+./src/cryptopals/challenges/02/data/10.txt
+```

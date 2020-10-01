@@ -76,3 +76,23 @@ aes_ecb_dep = declare_dependency(
     include_directories: root_include,
     link_with: aes_ecb,
 )
+
+aes_cbc_dependencies = [
+    aes_dep,
+    bytes_dep,
+    cryptopals_logging_dep,
+    gl_absl_status_dep,
+]
+aes_cbc = library(
+    'aes_cbc',
+    files(
+        'aes_cbc.cpp',
+    ),
+    dependencies: aes_cbc_dependencies,
+    include_directories: root_include,
+)
+aes_cbc_dep = declare_dependency(
+    dependencies: aes_cbc_dependencies,
+    include_directories: root_include,
+    link_with: aes_cbc,
+)
