@@ -1,5 +1,2 @@
-[wrap-git]
-directory = abseil-cpp
-url = https://github.com/abseil/abseil-cpp.git
-revision = head
-patch_directory = abseil-cpp
+[wrap-redirect]
+filename = google-lacuna/subprojects/abseil-cpp-git.wrap

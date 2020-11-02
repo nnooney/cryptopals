@@ -1,5 +1,2 @@
-[wrap-git]
-directory = googletest
-url = https://github.com/google/googletest.git
-revision = head
-patch_directory = googletest
+[wrap-redirect]
+filename = google-lacuna/subprojects/gtest-git.wrap

@@ -1,5 +1,2 @@
-[wrap-git]
-directory = protobuf
-url = https://github.com/protocolbuffers/protobuf.git
-revision = head
-patch_directory = protobuf
+[wrap-redirect]
+filename = google-lacuna/subprojects/protobuf-git.wrap
